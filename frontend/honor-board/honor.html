@@ -15,30 +15,27 @@
 <body>
 
     <div class="mobile-frame-fixed">
-        <!-- شريط علوي -->
         <header class="top-nav">
             <button class="icon-nav-btn" onclick="goToSelectUser()" title="رجوع">
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
             <div class="header-titles">
-                <span class="sub-txt">فرسان الصدارة والمتميزين</span>
-                <h1 class="main-head-title">لوحة الأوائل</h1>
+                <span class="sub-txt">أبطال الفصل الأكثر التزاماً</span>
+                <h1 class="main-head-title">نجوم سنة أولى</h1>
             </div>
             <div style="width: 36px;"></div>
         </header>
 
-        <!-- قائمة الأوائل والتصنيف -->
         <main class="ranks-section">
             <div id="ranksList" class="ranks-list-container"></div>
 
             <div class="empty-state" id="emptyNotice">
-                <i class="fa-solid fa-trophy" style="font-size: 40px; color: #475569; margin-bottom: 10px;"></i>
-                <p>لا يوجد أطفال مسجلين لعرض لوحة الأوائل بعد.</p>
+                <i class="fa-solid fa-star" style="font-size: 40px; color: #475569; margin-bottom: 10px;"></i>
+                <p>لا يوجد أطفال مسجلين لعرض النجوم بعد.</p>
             </div>
         </main>
     </div>
 
-    <!-- استدعاء سكريبت الربط اللحظي -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/honor-board/honor.js"></script>
 </body>
