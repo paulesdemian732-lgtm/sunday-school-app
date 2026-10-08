@@ -37,8 +37,50 @@ const ChildSchema = new mongoose.Schema({
 
 const Child = mongoose.model('Child', ChildSchema);
 
+// نموذج بيانات الأسابيع في القاعدة لمزامنتها عبر كل الأجهزة
+const WeekSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  date: { type: String, required: true },
+  label: { type: String, default: '' },
+  servant: { type: String, required: true },
+  createdAt: { type: Number, default: () => Date.now() }
+}, { timestamps: true });
+
+const Week = mongoose.model('Week', WeekSchema);
+
 // مسارات المصادقة
 app.use('/api', authRoutes);
+
+// مسارات الأسابيع السحابية
+app.get('/api/weeks', async (req, res) => {
+  try {
+    const weeks = await Week.find().sort({ createdAt: -1 });
+    res.json(weeks);
+  } catch (err) {
+    res.status(500).json({ error: 'خطأ في جلب الأسابيع' });
+  }
+});
+
+app.post('/api/weeks', async (req, res) => {
+  try {
+    const week = new Week(req.body);
+    await week.save();
+    io.emit('weekAdded', week);
+    res.json(week);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل في حفظ الأسبوع' });
+  }
+});
+
+app.delete('/api/weeks/:id', async (req, res) => {
+  try {
+    await Week.findOneAndDelete({ id: req.params.id });
+    io.emit('weekDeleted', req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'فشل في حذف الأسبوع' });
+  }
+});
 
 // مسارات بيانات الأطفال
 app.get('/api/children', async (req, res) => {

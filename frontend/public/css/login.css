@@ -20,7 +20,7 @@
 .d-3 { bottom: 12%; right: 10%; font-size: 20px; }
 .d-4 { bottom: 25%; left: 8%; font-size: 18px; }
 
-/* قسم الهيدر واللوجو */
+/* قسم الهيدر واللوجو المكبر */
 .header-section {
     text-align: center;
     margin-bottom: 22px;
@@ -29,9 +29,9 @@
 }
 
 .logo-glow-container {
-    width: 90px;
-    height: 90px;
-    margin: 0 auto 12px;
+    width: 135px;
+    height: 115px;
+    margin: 0 auto 14px;
     position: relative;
     display: flex;
     justify-content: center;
@@ -41,9 +41,9 @@
 .logo-glow-container::after {
     content: '';
     position: absolute;
-    width: 75px;
-    height: 75px;
-    background: radial-gradient(circle, rgba(64, 126, 210, 0.5) 0%, transparent 75%);
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle, rgba(64, 126, 210, 0.55) 0%, transparent 75%);
     border-radius: 50%;
     z-index: -1;
 }
@@ -51,12 +51,12 @@
 .church-logo {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.55));
 }
 
 .app-title {
     color: #ffffff;
-    font-size: 29px;
+    font-size: 30px;
     font-weight: 800;
     letter-spacing: -0.3px;
     margin-bottom: 4px;
@@ -73,12 +73,12 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 14px;
+    padding: 6px 16px;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     color: #f7d070;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
 }
 

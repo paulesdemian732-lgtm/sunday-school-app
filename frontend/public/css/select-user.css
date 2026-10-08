@@ -7,24 +7,40 @@
 .select-header {
     text-align: center;
     width: 100%;
+    margin-bottom: 12px;
 }
 
 .mini-logo-container {
-    width: 65px;
-    height: 65px;
-    margin: 0 auto 10px;
+    width: 135px;
+    height: 115px;
+    margin: 0 auto 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.mini-logo-container::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(64, 126, 210, 0.45) 0%, transparent 75%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 .church-logo-sm {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
 }
 
 .choose-title {
     color: #ffffff;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 800;
+    letter-spacing: -0.3px;
 }
 
 /* قائمة بطاقات الخدام */

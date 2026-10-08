@@ -13,6 +13,7 @@ if (servantNameEl) {
 const socket = io();
 
 let globalKids = [];
+let globalWeeks = [];
 let activeWeekId = null;
 
 let currentCropper = null;
@@ -27,11 +28,23 @@ async function fetchKidsFromDB() {
         const res = await fetch('/api/children');
         if (res.ok) {
             globalKids = await res.json();
-            populateWeeksDropdown();
             renderClassKids();
         }
     } catch (err) {
         console.error('فشل جلب الأطفال من السيرفر:', err);
+    }
+}
+
+async function fetchWeeksFromDB() {
+    try {
+        const res = await fetch('/api/weeks');
+        if (res.ok) {
+            globalWeeks = await res.json();
+            populateWeeksDropdown();
+            renderClassKids();
+        }
+    } catch (err) {
+        console.error('فشل جلب الأسابيع من السيرفر:', err);
     }
 }
 
@@ -40,6 +53,14 @@ socket.on('childAdded', (newKid) => {
     const exists = globalKids.some(k => k._id === newKid._id);
     if (!exists) {
         globalKids.push(newKid);
+        renderClassKids();
+    }
+});
+
+socket.on('weekAdded', (newWeek) => {
+    const exists = globalWeeks.some(w => w.id === newWeek.id);
+    if (!exists) {
+        globalWeeks.unshift(newWeek);
         populateWeeksDropdown();
         renderClassKids();
     }
@@ -76,23 +97,10 @@ socket.on('noteAdded', ({ id, note }) => {
 });
 
 // ==========================================
-// إدارة الأسابيع
+// إدارة الأسابيع السحابية
 // ==========================================
-function getGlobalWeeks() {
-    try {
-        return JSON.parse(localStorage.getItem('sundaySchoolWeeks') || '[]');
-    } catch (e) {
-        return [];
-    }
-}
-
-function setGlobalWeeks(weeks) {
-    localStorage.setItem('sundaySchoolWeeks', JSON.stringify(weeks));
-}
-
 function getServantWeeks() {
-    const allWeeks = getGlobalWeeks();
-    return allWeeks.filter(w => w.servant === currentServant);
+    return globalWeeks.filter(w => w.servant === currentServant);
 }
 
 function populateWeeksDropdown() {
@@ -140,7 +148,7 @@ function hideAddWeekModal() {
     document.getElementById('weekCreateForm').reset();
 }
 
-function handleCreateWeek(e) {
+async function handleCreateWeek(e) {
     e.preventDefault();
     const dateVal = document.getElementById('inputWeekDate').value;
     const labelVal = document.getElementById('inputWeekLabel').value.trim();
@@ -153,14 +161,22 @@ function handleCreateWeek(e) {
         createdAt: Date.now()
     };
 
-    const weeks = getGlobalWeeks();
-    weeks.unshift(newWeek);
-    setGlobalWeeks(weeks);
+    try {
+        const res = await fetch('/api/weeks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newWeek)
+        });
 
-    activeWeekId = newWeek.id;
-    hideAddWeekModal();
-    populateWeeksDropdown();
-    renderClassKids();
+        if (res.ok) {
+            hideAddWeekModal();
+            await fetchWeeksFromDB();
+        } else {
+            alert('حدث خطأ أثناء حفظ الأسبوع في السيرفر.');
+        }
+    } catch (err) {
+        console.error('فشل حفظ الأسبوع:', err);
+    }
 }
 
 // ==========================================
@@ -623,6 +639,7 @@ function goToSelectUser() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    fetchWeeksFromDB();
     fetchKidsFromDB();
 
     const addPhotoInput = document.getElementById('inputKidPhoto');
