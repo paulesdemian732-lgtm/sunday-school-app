@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مدارس الأحد - الصف الأول الابتدائي</title>
+
+    <!-- وسوم الأيقونة وتثبيت التطبيق على الموبايل والكمبيوتر -->
+    <link rel="manifest" href="/public/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
+    <link rel="apple-touch-icon" href="/public/icon.svg">
+
+    <!-- ملفات التنسيق بمقاييس المسار المطلق للسيرفر -->
+    <link rel="stylesheet" href="/public/css/global.css">
+    <link rel="stylesheet" href="/public/css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="mobile-wrapper">
+        <div class="bg-decorations">
+            <i class="fa-solid fa-star doodle d-1"></i>
+            <i class="fa-solid fa-dove doodle d-2"></i>
+            <i class="fa-solid fa-cross doodle d-3"></i>
+            <i class="fa-solid fa-heart doodle d-4"></i>
+        </div>
+
+        <header class="header-section">
+            <div class="logo-glow-container">
+                <svg viewBox="0 0 120 100" class="church-logo" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M60 82 C44 75 25 76 12 82 L12 36 C25 30 44 29 60 36 C76 29 95 30 108 36 L108 82 C95 76 76 75 60 82 Z" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="round"/>
+                    <path d="M60 37 L60 82" stroke="#FFFFFF" stroke-width="3"/>
+                    <path d="M19 43 C30 38 46 38 56 43" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M64 43 C74 38 90 38 101 43" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M35 50 V68 M29 56 H41" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M60 14 V58" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M46 29 H74" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M84 19 L87 9 L90 19 L100 22 L90 25 L87 35 L84 25 L74 22 Z" fill="#FFFFFF"/>
+                </svg>
+            </div>
+
+            <h1 class="app-title">مدارس الأحد</h1>
+            <h2 class="app-class">الصف الأول الابتدائي</h2>
+
+            <div class="verse-badge">
+                <i class="fa-solid fa-book-bible"></i>
+                <span>«دَعُوا الأَوْلاَدَ يَأْتُونَ إِلَيَّ»</span>
+            </div>
+        </header>
+
+        <main class="login-card">
+            <h3 class="card-title">تسجيل الدخول</h3>
+
+            <form id="loginForm">
+                <div class="input-box">
+                    <span class="lock-ic">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور" required autocomplete="off">
+                    <button type="button" id="togglePasswordBtn" class="reveal-btn">إخفاء</button>
+                </div>
+
+                <div id="errorBox" class="alert-box"></div>
+
+                <button type="submit" class="enter-btn" id="loginBtn">
+                    <span>دخول</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket enter-arrow"></i>
+                </button>
+            </form>
+        </main>
+    </div>
+
+    <script src="/src/js/login.js"></script>
+</body>
+</html>

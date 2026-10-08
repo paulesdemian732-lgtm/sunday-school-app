@@ -1,0 +1,16 @@
+{
+  "name": "مدارس الأحد - الصف الأول الابتدائي",
+  "short_name": "مدارس الأحد",
+  "start_url": "/views/login.html",
+  "display": "standalone",
+  "background_color": "#08111e",
+  "theme_color": "#08111e",
+  "icons": [
+    {
+      "src": "/public/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

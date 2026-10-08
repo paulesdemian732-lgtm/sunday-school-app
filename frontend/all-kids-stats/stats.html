@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إحصائية جميع الأطفال - مدارس الأحد</title>
+    
+    <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
+    <link rel="apple-touch-icon" href="/public/icon.svg">
+    <link rel="manifest" href="/public/manifest.json">
+
+    <link rel="stylesheet" href="/all-kids-stats/stats.css">
+    <link rel="stylesheet" href="/reports/reports.css">
+</head>
+<body>
+
+    <div class="mobile-frame-fixed">
+        <!-- شريط علوي -->
+        <header class="top-nav">
+            <button class="icon-nav-btn" onclick="goToSelectUser()" title="رجوع">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+            <div class="header-titles">
+                <span class="sub-txt">سجل المتابعة العام</span>
+                <h1 class="main-head-title">إحصائية جميع الأطفال</h1>
+            </div>
+            <!-- زر تقرير PDF لجميع الأطفال -->
+            <button class="header-pdf-btn" onclick="generateAllKidsPDFReport()" title="طباعة تقرير PDF لجميع أطفال المرحلة">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>تقرير PDF</span>
+            </button>
+        </header>
+
+        <!-- كارت إجمالي الأطفال الموحد -->
+        <section class="single-stat-section">
+            <div class="total-kids-hero-card">
+                <div class="hero-icon-box">
+                    <svg viewBox="0 0 40 40" width="28" height="28" fill="#f7d070">
+                        <circle cx="14" cy="12" r="5"/>
+                        <path d="M6 30 C6 23 10 20 14 20 C18 20 22 23 22 30 Z"/>
+                        <circle cx="26" cy="14" r="4.2"/>
+                        <path d="M20 30 C20 24 23 22 26 22 C29 22 33 24 33 30 Z"/>
+                    </svg>
+                </div>
+                <div class="hero-info">
+                    <span class="hero-title">إجمالي أطفال المرحلة</span>
+                    <span class="hero-number" id="totalAllKids">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- حقل البحث السريع عن طفل -->
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a4c2e6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="ابحث باسم الطفل..." oninput="handleSearch(this.value)">
+        </div>
+
+        <!-- قائمة الأطفال المجمعة -->
+        <main class="all-kids-section">
+            <div class="list-header-row">
+                <h3>سجل الأطفال</h3>
+                <span id="renderedKidsCount">0 طفل</span>
+            </div>
+
+            <div id="allKidsContainer" class="kids-vertical-list"></div>
+
+            <div class="empty-state" id="emptyNotice">
+                <p>لا يوجد أطفال مسجلين في أي فصل بعد.</p>
+            </div>
+        </main>
+
+        <!-- نافذة البروفايل الشامل للطفل -->
+        <div class="custom-modal-overlay" id="kidProfileModal">
+            <div class="custom-modal-card profile-card-pop">
+                <div class="modal-top">
+                    <h3>بروفايل الطفل</h3>
+                    <button class="modal-close-ic" onclick="hideProfileModal()">✕</button>
+                </div>
+
+                <div class="profile-header-meta">
+                    <div id="profBigAvatarWrap">
+                        <div class="profile-big-avatar">
+                            <svg viewBox="0 0 40 40" width="30" height="30" fill="#ffffff">
+                                <circle cx="20" cy="13" r="6"/>
+                                <path d="M9 33 C9 24 14 21 20 21 C26 21 31 24 31 33 Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 id="profKidName">اسم الطفل</h2>
+                    <p id="profKidServant">الخادم: بولس دميان</p>
+                    <a id="profKidPhone" href="#" class="call-action-pill">
+                        <span>📞</span>
+                        <span>01xxxxxxxxx</span>
+                    </a>
+                </div>
+
+                <div class="points-banner">
+                    <div class="pb-score">
+                        <span class="score-number" id="profTotalPoints">0</span>
+                        <span class="score-title">مجموع النقاط الكلي</span>
+                    </div>
+                    <div class="pb-badge" id="profRankBadge">
+                        <span>⭐ نجم واعد</span>
+                    </div>
+                </div>
+
+                <div class="detailed-attendance-grid">
+                    <div class="attend-stat-box">
+                        <div class="as-head"><span>⛪ القداس الإلهي</span></div>
+                        <div class="as-counters">
+                            <span class="tag-present">حضر: <strong id="countLiturgyPresent">0</strong></span>
+                            <span class="tag-absent">غاب: <strong id="countLiturgyAbsent">0</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="attend-stat-box">
+                        <div class="as-head"><span>📖 مدارس الأحد</span></div>
+                        <div class="as-counters">
+                            <span class="tag-present">حضر: <strong id="countSchoolPresent">0</strong></span>
+                            <span class="tag-absent">غاب: <strong id="countSchoolAbsent">0</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="attend-stat-box">
+                        <div class="as-head"><span>💡 تسميع الآية</span></div>
+                        <div class="as-counters">
+                            <span class="tag-present">سمّع: <strong id="countReciteDone">0</strong></span>
+                            <span class="tag-absent">فاتته: <strong id="countReciteMissed">0</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="attend-stat-box">
+                        <div class="as-head"><span>📞 الافتقاد</span></div>
+                        <div class="as-counters">
+                            <span class="tag-present" style="background:#e0f2fe; color:#0369a1;">تم: <strong id="countVisited">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-weeks-container">
+                    <h4>تفاصيل حضور كل أسبوع</h4>
+                    <div class="weeks-table-wrap">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>الأسبوع</th>
+                                    <th>قداس</th>
+                                    <th>مدارس</th>
+                                    <th>آية</th>
+                                    <th>افتقاد</th>
+                                    <th>نقاط</th>
+                                </tr>
+                            </thead>
+                            <tbody id="profWeeksTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="profile-notes-section">
+                    <h4>📝 ملاحظات الخدام وسجل السلوك</h4>
+                    <div class="notes-list-box" id="profNotesListBox"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- استدعاء سكريبت الربط اللحظي والمكتبات -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/reports/reports.js"></script>
+    <script src="/all-kids-stats/stats.js"></script>
+</body>
+</html>

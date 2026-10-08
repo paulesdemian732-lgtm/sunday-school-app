@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>متابعة الفصل بالأسابيع - مدارس الأحد</title>
+    
+    <link rel="stylesheet" href="/servant-class/class.css">
+    <link rel="stylesheet" href="/reports/reports.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+</head>
+<body>
+
+    <div class="mobile-frame-fixed">
+        <header class="top-nav">
+            <button class="icon-nav-btn" onclick="goToSelectUser()" title="رجوع">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div class="servant-profile-head">
+                <span class="role-badge">خادم الفصل</span>
+                <h1 class="servant-head-name" id="currentServantName">بولس دميان</h1>
+            </div>
+            <button class="add-btn-primary" onclick="showAddKidModal()">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>طفل جديد</span>
+            </button>
+        </header>
+
+        <section class="week-control-bar">
+            <div class="week-selector-wrap">
+                <label><i class="fa-solid fa-calendar-days"></i> الأسبوع الحالي:</label>
+                <select id="weekDropdown" onchange="handleWeekChange(this.value)">
+                </select>
+            </div>
+            <div class="week-actions-group">
+                <button class="report-action-btn" onclick="generateClassPDFReport()" title="استخراج وطباعة تقرير PDF شامل">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>تقرير PDF</span>
+                </button>
+                <button class="edit-action-btn" onclick="showEditKidModal()" title="تعديل بيانات طفل">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span>تعديل طفل</span>
+                </button>
+                <button class="note-action-btn" onclick="showAddNoteModal()" title="إضافة ملاحظة للطفل">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>ملاحظة</span>
+                </button>
+                <button class="add-week-btn" onclick="showAddWeekModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>أسبوع جديد</span>
+                </button>
+            </div>
+        </section>
+
+        <div class="summary-strip">
+            <div class="summary-box">
+                <span class="sm-count" id="totalKidsNum">0</span>
+                <span class="sm-label">أطفال الفصل</span>
+            </div>
+            <div class="v-line"></div>
+            <div class="summary-box">
+                <span class="sm-count" id="attendedTodayNum">0</span>
+                <span class="sm-label">حضور الفصل</span>
+            </div>
+            <div class="v-line"></div>
+            <div class="summary-box">
+                <span class="sm-count" id="totalPointsToday">0</span>
+                <span class="sm-label">نقاط الأسبوع</span>
+            </div>
+        </div>
+
+        <main class="class-kids-scroll">
+            <div id="kidsContainer" class="cards-list"></div>
+
+            <div class="empty-notice" id="emptyNotice">
+                <div class="empty-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
+                <p id="emptyNoticeTitle">لا توجد أسابيع مسجلة بعد.</p>
+                <span id="emptyNoticeSub">اضغط على "أسبوع جديد" لإضافة أول أسبوع وتاريخ.</span>
+            </div>
+        </main>
+
+        <!-- نافذة إضافة طفل -->
+        <div class="custom-modal-overlay" id="addKidModal">
+            <div class="custom-modal-card">
+                <div class="modal-top">
+                    <h3>تسجيل طفل جديد للفصل</h3>
+                    <button class="modal-close-ic" onclick="hideAddKidModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="kidCreateForm" onsubmit="handleCreateKid(event)">
+                    <div class="field-row">
+                        <label>اسم الطفل ثلاثي</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-signature"></i>
+                            <input type="text" id="inputKidName" placeholder="أدخل اسم الطفل..." required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>رقم هاتف ولي الأمر</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel" id="inputKidPhone" placeholder="01xxxxxxxxx" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>تاريخ الميلاد</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-cake-candles"></i>
+                            <input type="date" id="inputKidBirthdate">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>صورة الطفل (اختياري)</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-image"></i>
+                            <input type="file" id="inputKidPhoto" accept="image/*">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-modal-btn">
+                        <i class="fa-solid fa-check"></i>
+                        <span>حفظ بيانات الطفل</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- نافذة تعديل طفل -->
+        <div class="custom-modal-overlay" id="editKidModal">
+            <div class="custom-modal-card">
+                <div class="modal-top">
+                    <h3>تعديل بيانات الطفل</h3>
+                    <button class="modal-close-ic" onclick="hideEditKidModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="kidEditForm" onsubmit="handleSaveEditedKid(event)">
+                    <input type="hidden" id="editKidId">
+
+                    <div class="field-row" id="editKidSelectRow">
+                        <label>اختر الطفل للتعديل</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-child"></i>
+                            <select id="selectEditKid" onchange="loadKidDataForEdit(this.value)">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>اسم الطفل ثلاثي</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-signature"></i>
+                            <input type="text" id="editKidName" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>رقم هاتف ولي الأمر</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel" id="editKidPhone" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>تاريخ الميلاد</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-cake-candles"></i>
+                            <input type="date" id="editKidBirthdate">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>صورة الطفل (اختياري)</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-image"></i>
+                            <input type="file" id="editKidPhoto" accept="image/*">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-modal-btn">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>حفظ التعديلات</span>
+                    </button>
+
+                    <div style="margin-top: 15px; padding-top: 14px; border-top: 1px dashed #e2e8f0;">
+                        <button type="button" class="delete-kid-safe-btn" onclick="confirmDeleteCurrentKid()">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>حذف هذا الطفل من الفصل نهائياً</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- نافذة قص الصورة -->
+        <div class="custom-modal-overlay" id="cropModal" style="z-index: 250;">
+            <div class="custom-modal-card" style="max-width: 360px; text-align: center;">
+                <div class="modal-top">
+                    <h3>تحديد جزء وصورة الطفل</h3>
+                    <button type="button" class="modal-close-ic" onclick="cancelCrop()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <p style="font-size: 11.5px; color: #64748b; margin-bottom: 12px; font-weight: 700;">
+                    اسحب الصورة أو كبّرها/صغّرها لتحديد الوجه داخل الدائرة:
+                </p>
+                
+                <div style="width: 100%; height: 260px; background-color: #000; border-radius: 16px; overflow: hidden; position: relative;">
+                    <img id="imageToCrop" src="" style="max-width: 100%; display: block;" alt="معاينة الصورة">
+                </div>
+
+                <div style="margin-top: 14px; display: flex; gap: 8px;">
+                    <button type="button" class="save-modal-btn" onclick="applyCrop()" style="margin-top: 0; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); flex: 2;">
+                        <i class="fa-solid fa-crop-simple"></i>
+                        <span>تأكيد واعتماد الصورة</span>
+                    </button>
+                    <button type="button" onclick="cancelCrop()" style="flex: 1; background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 18px; font-weight: 800; cursor: pointer; color: #475569; font-size: 13px;">
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة إضافة ملاحظة -->
+        <div class="custom-modal-overlay" id="addNoteModal">
+            <div class="custom-modal-card">
+                <div class="modal-top">
+                    <h3>تسجيل ملاحظة أسبوعية</h3>
+                    <button class="modal-close-ic" onclick="hideAddNoteModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="noteCreateForm" onsubmit="handleCreateNote(event)">
+                    <div class="field-row">
+                        <label>اختر الطفل</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-child"></i>
+                            <select id="selectNoteKid" required>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>الملاحظة (تشجيع، سلوك، التزام...)</label>
+                        <div class="field-input-box text-area-wrap">
+                            <textarea id="inputNoteText" rows="3" placeholder="مثال: بدأ يحفظ الآيات بانتظام، أو شارك بإيجابية في الدرس..." required></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-modal-btn">
+                        <i class="fa-solid fa-check"></i>
+                        <span>حفظ الملاحظة في بروفايله</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- نافذة إضافة أسبوع -->
+        <div class="custom-modal-overlay" id="addWeekModal">
+            <div class="custom-modal-card">
+                <div class="modal-top">
+                    <h3>إضافة أسبوع جديد</h3>
+                    <button class="modal-close-ic" onclick="hideAddWeekModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="weekCreateForm" onsubmit="handleCreateWeek(event)">
+                    <div class="field-row">
+                        <label>اختر تاريخ الجمعة</label>
+                        <div class="field-input-box">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <input type="date" id="inputWeekDate" required>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <label>عنوان أو وصف الأسبوع (اختياري)</label>
+                        <div class="field-input-box">
+                            <i class="fa-solid fa-pen"></i>
+                            <input type="text" id="inputWeekLabel" placeholder="مثال: درس المحبة">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-modal-btn">
+                        <i class="fa-solid fa-check"></i>
+                        <span>تأكيد إضافة الأسبوع</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- استدعاء سكريبت الربط اللحظي والمكتبات -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="/reports/reports.js"></script>
+    <script src="/servant-class/class.js"></script>
+</body>
+</html>

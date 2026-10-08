@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة الشرف والمراكز - مدارس الأحد</title>
+    
+    <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
+    <link rel="apple-touch-icon" href="/public/icon.svg">
+    <link rel="manifest" href="/public/manifest.json">
+
+    <link rel="stylesheet" href="/honor-board/honor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="mobile-frame-fixed">
+        <!-- شريط علوي -->
+        <header class="top-nav">
+            <button class="icon-nav-btn" onclick="goToSelectUser()" title="رجوع">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div class="header-titles">
+                <span class="sub-txt">فرسان المرحلة والمتميزين</span>
+                <h1 class="main-head-title">لوحة الشرف والمراكز</h1>
+            </div>
+            <div style="width: 36px;"></div>
+        </header>
+
+        <!-- قائمة فرسان المرحلة والتصنيف -->
+        <main class="ranks-section">
+            <div id="ranksList" class="ranks-list-container"></div>
+
+            <div class="empty-state" id="emptyNotice">
+                <i class="fa-solid fa-trophy" style="font-size: 40px; color: #475569; margin-bottom: 10px;"></i>
+                <p>لا يوجد أطفال مسجلين لعرض لوحة الشرف بعد.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- استدعاء سكريبت الربط اللحظي -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/honor-board/honor.js"></script>
+</body>
+</html>
