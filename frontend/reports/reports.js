@@ -9,25 +9,46 @@ function reportEscape(str) {
         .replace(/'/g, "&#039;");
 }
 
+// مطابقة اسم الخادم بمرونة (سواء بولس أو بولس دميان)
+function isSameServant(servantA, servantB) {
+    if (!servantA || !servantB) return false;
+    const a = servantA.trim().toLowerCase();
+    const b = servantB.trim().toLowerCase();
+    return a === b || a.includes(b) || b.includes(a);
+}
+
 // -------------------------------------------------------------
 // 1. تقرير أطفال خادم معين (فصل واحد)
 // -------------------------------------------------------------
-function generateClassPDFReport() {
+async function generateClassPDFReport() {
     const servant = sessionStorage.getItem('currentServant') || 'بولس دميان';
     
     let allKids = [];
     let allWeeks = [];
+    
     try {
-        allKids = JSON.parse(localStorage.getItem('sundaySchoolGlobalKids') || '[]');
-        allWeeks = JSON.parse(localStorage.getItem('sundaySchoolWeeks') || '[]');
+        // جلب البيانات من المتغيرات العامة إذا كانت موجودة، أو من السيرفر مباشرة
+        if (typeof globalKids !== 'undefined' && globalKids.length > 0) {
+            allKids = globalKids;
+        } else {
+            const kidsRes = await fetch('/api/children');
+            allKids = await kidsRes.json();
+        }
+
+        if (typeof globalWeeks !== 'undefined' && globalWeeks.length > 0) {
+            allWeeks = globalWeeks;
+        } else {
+            const weeksRes = await fetch('/api/weeks');
+            allWeeks = await weeksRes.json();
+        }
     } catch (e) {
-        alert('حدث خطأ أثناء استرجاع البيانات.');
+        alert('حدث خطأ أثناء الاتصال بقاعدة البيانات لجلب التقرير.');
         return;
     }
 
-    const servantKids = allKids.filter(k => k.servant === servant);
+    const servantKids = allKids.filter(k => isSameServant(k.servant, servant));
     const servantWeeks = allWeeks
-        .filter(w => w.servant === servant)
+        .filter(w => isSameServant(w.servant, servant))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (servantKids.length === 0) {
@@ -41,14 +62,22 @@ function generateClassPDFReport() {
 // -------------------------------------------------------------
 // 2. تقرير إحصائية جميع أطفال المرحلة كاملة
 // -------------------------------------------------------------
-function generateAllKidsPDFReport() {
+async function generateAllKidsPDFReport() {
     let allKids = [];
     let allWeeks = [];
+    
     try {
-        allKids = JSON.parse(localStorage.getItem('sundaySchoolGlobalKids') || '[]');
-        allWeeks = JSON.parse(localStorage.getItem('sundaySchoolWeeks') || '[]');
+        if (typeof allKidsData !== 'undefined' && allKidsData.length > 0) {
+            allKids = allKidsData;
+        } else {
+            const kidsRes = await fetch('/api/children');
+            allKids = await kidsRes.json();
+        }
+
+        const weeksRes = await fetch('/api/weeks');
+        allWeeks = await weeksRes.json();
     } catch (e) {
-        alert('حدث خطأ أثناء استرجاع البيانات.');
+        alert('حدث خطأ أثناء استرجاع البيانات العامة من السيرفر.');
         return;
     }
 
@@ -103,7 +132,8 @@ function buildAndPrintReport(kidsList, weeksList, reportTitle, servantLabel, isG
         let visitationCount = 0;
 
         if (kid.records) {
-            Object.values(kid.records).forEach(rec => {
+            const recordsObj = kid.records instanceof Map ? Object.fromEntries(kid.records) : kid.records;
+            Object.values(recordsObj).forEach(rec => {
                 if (rec.liturgy) { totalPts += 5; liturgyCount++; }
                 if (rec.sundaySchool) { totalPts += 5; schoolCount++; }
                 if (rec.recitation) { totalPts += 5; recitationCount++; }
@@ -115,12 +145,12 @@ function buildAndPrintReport(kidsList, weeksList, reportTitle, servantLabel, isG
         const birthdateDisplay = kid.birthdate || 'غير مسجل';
         
         const kidWeeks = isGlobal 
-            ? weeksList.filter(w => w.servant === kid.servant).sort((a, b) => new Date(a.date) - new Date(b.date))
+            ? weeksList.filter(w => isSameServant(w.servant, kid.servant)).sort((a, b) => new Date(a.date) - new Date(b.date))
             : weeksList;
 
         const totalWeeksCount = kidWeeks.length;
 
-        // صورة البروفايل بأبعاد ثابتة ومباشرة 52px
+        // صورة البروفايل بأبعاد ثابتة 52px
         const avatarHtml = kid.photo
             ? `<img src="${kid.photo}" alt="${reportEscape(kid.name)}" class="pdf-kid-avatar-img" style="width: 52px; height: 52px; min-width: 52px; min-height: 52px; max-width: 52px; max-height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #08111e; display: inline-block;">`
             : `<div class="pdf-kid-avatar-default" style="width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-radius: 50%; background-color: #08111e; color: #ffffff; display: flex; justify-content: center; align-items: center; font-size: 20px;">
@@ -132,8 +162,9 @@ function buildAndPrintReport(kidsList, weeksList, reportTitle, servantLabel, isG
         if (kidWeeks.length === 0) {
             tableRowsHtml = `<tr><td colspan="6" style="color: #64748b; padding: 10px;">لا توجد أسابيع مسجلة لهذا الفصل بعد</td></tr>`;
         } else {
+            const recordsObj = kid.records instanceof Map ? Object.fromEntries(kid.records) : (kid.records || {});
             kidWeeks.forEach((w, wIndex) => {
-                const rec = (kid.records && kid.records[w.id]) ? kid.records[w.id] : {
+                const rec = recordsObj[w.id] || {
                     liturgy: false, sundaySchool: false, recitation: false, visitation: false
                 };
 
@@ -173,7 +204,7 @@ function buildAndPrintReport(kidsList, weeksList, reportTitle, servantLabel, isG
             notesHtml = `<div class="pdf-empty-notes">لا توجد ملاحظات مسجلة لهذا الطفل حتى الآن.</div>`;
         }
 
-        // 3. كارت التقرير مع تصحيح صيغة الأرقام (0 من 2)
+        // 3. كارت التقرير
         reportHtml += `
             <div class="pdf-kid-card">
                 <div class="pdf-kid-head">
@@ -245,5 +276,5 @@ function buildAndPrintReport(kidsList, weeksList, reportTitle, servantLabel, isG
         setTimeout(() => {
             if (reportArea) reportArea.remove();
         }, 1000);
-    }, 250);
+    }, 300);
 }
