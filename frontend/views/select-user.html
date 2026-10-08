@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مدارس الأحد</title>
 
-    <!-- الأيقونة والمانيفست -->
     <link rel="manifest" href="/public/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
     <link rel="apple-touch-icon" href="/public/icon.svg">
 
-    <!-- التنسيقات -->
     <link rel="stylesheet" href="/public/css/global.css">
     <link rel="stylesheet" href="/public/css/select-user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
+<body style="position: relative; overflow-x: hidden;">
 
-    <div class="mobile-wrapper select-wrapper">
-        <div class="bg-decorations">
-            <i class="fa-solid fa-star doodle d-1"></i>
-            <i class="fa-solid fa-dove doodle d-2"></i>
-            <i class="fa-solid fa-cross doodle d-3"></i>
-            <i class="fa-solid fa-heart doodle d-4"></i>
-        </div>
+    <!-- الزينة الخلفية موزعة في أطراف الصفحة بالكامل وليست فوق اللوجو -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden;">
+        <i class="fa-solid fa-star" style="position: absolute; top: 30px; right: 24px; font-size: 24px; color: rgba(255,255,255,0.15); transform: rotate(15deg);"></i>
+        <i class="fa-solid fa-dove" style="position: absolute; top: 40px; left: 24px; font-size: 24px; color: rgba(255,255,255,0.15); transform: rotate(-10deg);"></i>
+        <i class="fa-solid fa-cross" style="position: absolute; bottom: 40px; right: 28px; font-size: 26px; color: rgba(255,255,255,0.12);"></i>
+        <i class="fa-solid fa-heart" style="position: absolute; bottom: 45px; left: 28px; font-size: 22px; color: rgba(255,255,255,0.12); transform: rotate(12deg);"></i>
+    </div>
 
+    <div class="mobile-wrapper select-wrapper" style="position: relative; z-index: 1;">
         <header class="select-header">
             <div class="mini-logo-container">
                 <svg viewBox="0 0 120 100" class="church-logo-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,14 +77,13 @@
         </div>
 
         <section class="bottom-board-group">
-            <!-- كارت أبطال سنة أولى ابتدائي بالاسم الجديد -->
             <div class="board-card" onclick="openHonorBoard()">
                 <div class="board-icon">
                     <i class="fa-solid fa-star star-gold"></i>
                 </div>
                 <div class="board-info">
-                    <h4>أبطال سنة أولى ابتدائي</h4>
-                    <p>ترتيب الأطفال الأكثر تميزاً والتزاماً</p>
+                    <h4>نجوم سنة أولى</h4>
+                    <p>أبطال الفصل الأكثر التزاماً</p>
                 </div>
                 <div class="board-arrow">
                     <i class="fa-solid fa-chevron-left"></i>
