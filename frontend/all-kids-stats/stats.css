@@ -539,8 +539,21 @@ body {
     font-weight: 700;
 }
 
-.check-green { color: #10b981; font-size: 12px; }
-.cross-gray { color: #cbd5e1; font-size: 11px; }
+/* ضبط وتوحيد علامات الصح والخطأ */
+.check-green { 
+    color: #16a34a !important; 
+    font-size: 14px !important; 
+    font-weight: 900 !important;
+    display: inline-block;
+}
+
+.cross-gray,
+.cross-red { 
+    color: #ef4444 !important; 
+    font-size: 14px !important; 
+    font-weight: 900 !important;
+    display: inline-block;
+}
 
 /* قسم الملاحظات وسجل السلوك */
 .profile-notes-section {
