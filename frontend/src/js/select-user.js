@@ -1,22 +1,8 @@
 let selectedServant = null;
 let isSettingNewPassword = false;
 
-function getServantsPasswords() {
-    try {
-        return JSON.parse(localStorage.getItem('sundaySchoolServantsPasswords') || '{}');
-    } catch (e) {
-        return {};
-    }
-}
-
-function saveServantsPasswords(data) {
-    localStorage.setItem('sundaySchoolServantsPasswords', JSON.stringify(data));
-}
-
-function handleUserSelection(userName) {
+async function handleUserSelection(userName) {
     selectedServant = userName;
-    const passwords = getServantsPasswords();
-    const hasPassword = Boolean(passwords[userName]);
 
     const modal = document.getElementById('authModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -32,30 +18,42 @@ function handleUserSelection(userName) {
     confirmInput.value = '';
     errorBox.style.display = 'none';
     errorBox.textContent = '';
+    submitBtn.disabled = true;
 
-    if (!hasPassword) {
-        // يدخل لأول مرة
-        isSettingNewPassword = true;
-        modalTitle.textContent = `مرحباً بك ${userName}`;
-        modalDesc.textContent = 'أنت تسجل لأول مرة، يرجى إنشاء كلمة مرور خاصة ببروفايلك:';
-        confirmGroup.style.display = 'block';
-        confirmInput.required = true;
-        passwordInput.placeholder = 'أنشئ كلمة المرور';
-        confirmInput.placeholder = 'تأكيد كلمة المرور';
-        submitBtn.textContent = 'حفظ وتعيين';
-    } else {
-        // مسجل سابقاً
-        isSettingNewPassword = false;
-        modalTitle.textContent = `مرحباً بك ${userName}`;
-        modalDesc.textContent = 'أدخل كلمة المرور الخاصة بك للمتابعة:';
-        confirmGroup.style.display = 'none';
-        confirmInput.required = false;
-        passwordInput.placeholder = 'كلمة المرور';
-        submitBtn.textContent = 'دخول';
-    }
-
+    modalTitle.textContent = `مرحباً بك ${userName}`;
+    modalDesc.textContent = 'جاري التحقق من الحساب...';
     modal.style.display = 'flex';
-    passwordInput.focus();
+
+    try {
+        // فحص هل الخادم مسجل في السيرفر وقاعدة البيانات
+        const res = await fetch(`/api/servant-status/${encodeURIComponent(userName)}`);
+        const data = await res.json();
+        const hasPassword = data.hasPassword;
+
+        if (!hasPassword) {
+            // يدخل لأول مرة
+            isSettingNewPassword = true;
+            modalDesc.textContent = 'أنت تسجل لأول مرة، يرجى إنشاء كلمة مرور خاصة ببروفايلك:';
+            confirmGroup.style.display = 'block';
+            confirmInput.required = true;
+            passwordInput.placeholder = 'أنشئ كلمة المرور';
+            confirmInput.placeholder = 'تأكيد كلمة المرور';
+            submitBtn.textContent = 'حفظ وتعيين';
+        } else {
+            // مسجل سابقاً
+            isSettingNewPassword = false;
+            modalDesc.textContent = 'أدخل كلمة المرور الخاصة بك للمتابعة:';
+            confirmGroup.style.display = 'none';
+            confirmInput.required = false;
+            passwordInput.placeholder = 'كلمة المرور';
+            submitBtn.textContent = 'دخول';
+        }
+    } catch (err) {
+        modalDesc.textContent = 'تعذر الاتصال بالسيرفر، حاول مجدداً.';
+    } finally {
+        submitBtn.disabled = false;
+        passwordInput.focus();
+    }
 }
 
 function closeAuthModal() {
@@ -64,16 +62,16 @@ function closeAuthModal() {
     selectedServant = null;
 }
 
-function handleAuthSubmit(e) {
+async function handleAuthSubmit(e) {
     e.preventDefault();
     if (!selectedServant) return;
 
     const passwordInput = document.getElementById('modalPasswordInput');
     const confirmInput = document.getElementById('modalConfirmPasswordInput');
     const errorBox = document.getElementById('modalError');
+    const submitBtn = document.getElementById('modalSubmitBtn');
 
     const enteredPassword = passwordInput.value.trim();
-    const passwords = getServantsPasswords();
 
     if (isSettingNewPassword) {
         const enteredConfirm = confirmInput.value.trim();
@@ -89,24 +87,37 @@ function handleAuthSubmit(e) {
             errorBox.style.display = 'block';
             return;
         }
+    }
 
-        // حفظ كلمة المرور لأول مرة
-        passwords[selectedServant] = enteredPassword;
-        saveServantsPasswords(passwords);
+    submitBtn.disabled = true;
+    errorBox.style.display = 'none';
 
-        // التوجيه إلى فصل الخادم بمسار مطلق
-        sessionStorage.setItem('currentServant', selectedServant);
-        window.location.href = '/servant-class/class.html';
-    } else {
-        // التحقق من كلمة المرور السابقة
-        if (passwords[selectedServant] === enteredPassword) {
+    try {
+        const response = await fetch('/api/servant-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: selectedServant,
+                password: enteredPassword,
+                isNew: isSettingNewPassword
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
             sessionStorage.setItem('currentServant', selectedServant);
             window.location.href = '/servant-class/class.html';
         } else {
-            errorBox.textContent = 'كلمة المرور غير صحيحة، حاول مجدداً';
+            errorBox.textContent = data.message || 'كلمة المرور غير صحيحة، حاول مجدداً';
             errorBox.style.display = 'block';
             passwordInput.focus();
         }
+    } catch (err) {
+        errorBox.textContent = 'حدث خطأ في الاتصال بالشبكة';
+        errorBox.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
     }
 }
 
@@ -124,4 +135,4 @@ window.addEventListener('click', (e) => {
     if (e.target === modal) {
         closeAuthModal();
     }
-});
+});s
