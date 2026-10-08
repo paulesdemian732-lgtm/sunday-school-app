@@ -26,7 +26,7 @@ body {
     max-width: 395px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     position: relative;
 }
 
@@ -72,79 +72,109 @@ body {
     font-weight: 800;
 }
 
-.trophy-badge-top {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #f59e0b;
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-}
-
-/* بنر الشرف */
-.honor-banner {
-    background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2d 100%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 18px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.crown-icon {
-    font-size: 26px;
-    color: #fbbf24;
-}
-
-.honor-banner-txt h3 {
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.honor-banner-txt p {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 11px;
-    font-weight: 600;
-}
-
-/* قائمة بطاقات المراكز */
-.rankings-container {
+/* حاوية الكروت مع تباعد مضمون */
+.ranks-section {
     width: 100%;
 }
 
-.ranks-list-cards {
+.ranks-list-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px !important; /* مسافة واضحة ومضمونة بين كل كارت والتالي */
+    padding-bottom: 25px;
 }
 
+/* بطاقة الطفل: مقسمة لسطرين ومتباعدة بـ margin-bottom إجباري */
 .rank-card {
-    background-color: #ffffff;
-    border-radius: 18px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    background-color: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 14px 14px 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important; /* فاصل إجباري لمنع التصاق الكروت */
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.28) !important;
     position: relative;
     overflow: hidden;
 }
 
-.rank-card.rank-1 { border-right: 5px solid #f59e0b; }
-.rank-card.rank-2 { border-right: 5px solid #94a3b8; }
-.rank-card.rank-3 { border-right: 5px solid #b45309; }
+.rank-card.rank-1 { border-right: 6px solid #f59e0b !important; }
+.rank-card.rank-2 { border-right: 6px solid #94a3b8 !important; }
+.rank-card.rank-3 { border-right: 6px solid #b45309 !important; }
 
-.rank-card-main {
+/* السطر العلوي: صورة واسم وخادم على اليمين، وميدالية ونقاط على اليسار */
+.rank-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.rank-child-identity {
     display: flex;
     align-items: center;
     gap: 10px;
     flex: 1;
+    min-width: 0;
+}
+
+.honor-kid-avatar-img {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #122849;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.honor-kid-avatar-default {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    background-color: #122849;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.rank-child-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.rank-child-meta h4 {
+    color: #08111e;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rank-child-meta span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rank-side-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .rank-badge-box {
@@ -157,127 +187,78 @@ body {
     font-size: 13px;
     font-weight: 900;
     background-color: #f1f5f9;
-    color: #08111e;
-    flex-shrink: 0;
+    color: #475569;
 }
 
 .rank-1 .rank-badge-box { background-color: #fef3c7; color: #b45309; }
 .rank-2 .rank-badge-box { background-color: #f1f5f9; color: #475569; }
 .rank-3 .rank-badge-box { background-color: #ffedd5; color: #9a3412; }
 
-/* حجم الصورة 52px */
-.honor-kid-avatar-img {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #122849;
-    flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.honor-kid-avatar-default {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background-color: #122849;
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-
-.kid-center-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.kid-name-servant {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.kid-name-servant h4 {
-    color: #08111e;
-    font-size: 14.5px;
-    font-weight: 800;
-}
-
-.kid-name-servant span {
-    color: #64748b;
-    font-size: 10.5px;
-    font-weight: 700;
-}
-
-/* شبكة الإحصائيات (صفين منتظمين ومتناسقين) */
-.kid-stats-chips {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.stats-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.stat-tag {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 3px 7px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #334155;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
-
-.stat-tag strong {
-    color: #08111e;
-    font-weight: 900;
-}
-
-/* تمييز خفيف لخانة الافتقاد بلون مائل للأخضر الهادئ */
-.stat-tag-visitation {
-    background-color: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #166534;
-}
-
 .points-side-box {
     background: linear-gradient(135deg, #0e2038 0%, #060e18 100%);
-    border-radius: 14px;
-    padding: 8px 10px;
+    border-radius: 12px;
+    padding: 6px 10px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 58px;
-    margin-right: 14px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    min-width: 52px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .pts-num {
     color: #f7d070;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 900;
-    line-height: 1.1;
+    line-height: 1;
 }
 
 .pts-lbl {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
+}
+
+/* السطر السفلي: شبكة 2x2 للبادجات بمساحة مستقلة تماماً */
+.kid-stats-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    width: 100% !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #f1f5f9 !important;
+}
+
+.stat-tag {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 5px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-tag span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-tag strong {
+    color: #08111e;
+    font-weight: 900;
+    font-size: 12px;
+}
+
+.stat-tag-visitation {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
 }
 
 .empty-state {
@@ -285,11 +266,6 @@ body {
     padding: 30px 10px;
     color: rgba(255, 255, 255, 0.5);
     display: none;
-}
-
-.empty-state i {
-    font-size: 38px;
-    margin-bottom: 6px;
 }
 
 .empty-state p {

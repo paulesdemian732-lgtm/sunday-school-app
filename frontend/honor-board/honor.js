@@ -1,4 +1,3 @@
-// اتصال Socket.io اللحظي
 const socket = io();
 
 let honorKidsList = [];
@@ -25,7 +24,8 @@ function computeKidScores(kid) {
     let visitationCount = 0;
 
     if (kid && kid.records) {
-        Object.values(kid.records).forEach(rec => {
+        const recordsObj = kid.records instanceof Map ? Object.fromEntries(kid.records) : kid.records;
+        Object.values(recordsObj).forEach(rec => {
             if (rec.liturgy) {
                 totalScore += 5;
                 liturgyCount++;
@@ -61,13 +61,11 @@ function renderRankings() {
 
     if (emptyNotice) emptyNotice.style.display = 'none';
 
-    // ترتيب تنازلي حسب النقاط
     const rankedKids = honorKidsList.map(k => ({
         ...k,
         ...computeKidScores(k)
     })).sort((a, b) => b.totalScore - a.totalScore);
 
-    // حساب المراكز بنظام Dense Ranking
     let currentRank = 0;
     let lastScore = null;
 
@@ -101,35 +99,49 @@ function renderRankings() {
         const card = document.createElement('div');
         card.className = `rank-card ${rankClass}`;
         card.innerHTML = `
-            <div class="rank-card-main">
-                <div class="rank-badge-box">
-                    ${rankIconOrNum}
-                </div>
-                ${avatarHtml}
-                <div class="kid-center-info">
-                    <div class="kid-name-servant">
+            <div class="rank-card-header">
+                <div class="rank-child-identity">
+                    ${avatarHtml}
+                    <div class="rank-child-meta">
                         <h4>${escapeHtml(kid.name)}</h4>
-                        <span>(الخادم المسؤول: ${escapeHtml(kid.servant || 'غير محدد')})</span>
+                        <span>الخادم: ${escapeHtml(kid.servant || 'غير مححدد')}</span>
                     </div>
-                    <div class="kid-stats-grid">
-                        <span class="stat-tag"><i class="fa-solid fa-church"></i> قداس: <strong>${kid.liturgyCount}</strong></span>
-                        <span class="stat-tag"><i class="fa-solid fa-book-bible"></i> مدارس: <strong>${kid.schoolCount}</strong></span>
-                        <span class="stat-tag"><i class="fa-solid fa-lightbulb"></i> آيات: <strong>${kid.reciteCount}</strong></span>
-                        <span class="stat-tag stat-tag-visitation"><i class="fa-solid fa-phone-volume"></i> افتقاد: <strong>${kid.visitationCount}</strong></span>
+                </div>
+
+                <div class="rank-side-actions">
+                    <div class="rank-badge-box">
+                        ${rankIconOrNum}
+                    </div>
+                    <div class="points-side-box">
+                        <span class="pts-num">${kid.totalScore}</span>
+                        <span class="pts-lbl">نقطة</span>
                     </div>
                 </div>
             </div>
 
-            <div class="points-side-box">
-                <span class="pts-num">${kid.totalScore}</span>
-                <span class="pts-lbl">نقطة</span>
+            <div class="kid-stats-grid">
+                <div class="stat-tag">
+                    <span><i class="fa-solid fa-church"></i> قداس</span>
+                    <strong>${kid.liturgyCount}</strong>
+                </div>
+                <div class="stat-tag">
+                    <span><i class="fa-solid fa-book-bible"></i> مدارس</span>
+                    <strong>${kid.schoolCount}</strong>
+                </div>
+                <div class="stat-tag">
+                    <span><i class="fa-solid fa-lightbulb"></i> آيات</span>
+                    <strong>${kid.reciteCount}</strong>
+                </div>
+                <div class="stat-tag stat-tag-visitation">
+                    <span><i class="fa-solid fa-phone-volume"></i> افتقاد</span>
+                    <strong>${kid.visitationCount}</strong>
+                </div>
             </div>
         `;
         container.appendChild(card);
     });
 }
 
-// جلب الأطفال وتحديث الترتيب
 async function fetchHonorData() {
     try {
         const res = await fetch('/api/children');
@@ -138,11 +150,10 @@ async function fetchHonorData() {
             renderRankings();
         }
     } catch (err) {
-        console.error('فشل في جلب بيانات لوحة الشرف:', err);
+        console.error('فشل في جلب البيانات:', err);
     }
 }
 
-// المزامنة اللحظية مع التعديلات
 socket.on('childAdded', fetchHonorData);
 socket.on('childDeleted', fetchHonorData);
 socket.on('childUpdated', fetchHonorData);
