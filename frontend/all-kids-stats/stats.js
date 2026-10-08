@@ -2,14 +2,7 @@
 const socket = io();
 
 let globalKidsData = [];
-
-function getGlobalWeeks() {
-    try {
-        return JSON.parse(localStorage.getItem('sundaySchoolWeeks') || '[]');
-    } catch (e) {
-        return [];
-    }
-}
+let globalWeeksData = [];
 
 function goToSelectUser() {
     window.location.href = '/views/select-user.html';
@@ -26,14 +19,30 @@ function escapeHtml(str) {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/"/g, "&#039;");
+}
+
+// دالة مساعدة للحصول على سجل الطفل لأسبوع معين مهما كانت صيغة المفتاح
+function getKidWeekRecord(kid, week) {
+    if (!kid || !kid.records) return null;
+    const records = kid.records;
+    
+    // فحص بالـ id أولاً (مثل week_1728...)
+    if (week.id && records[week.id]) return records[week.id];
+    // فحص بالتاريخ (مثل 2026-10-02)
+    if (week.date && records[week.date]) return records[week.date];
+    // فحص بالـ key إذا كان موجوداً
+    if (week.key && records[week.key]) return records[week.key];
+
+    return null;
 }
 
 function calculateKidTotalScore(kid) {
     if (!kid || !kid.records) return 0;
     let total = 0;
-    Object.values(kid.records).forEach(rec => {
+    const records = (kid.records instanceof Map) ? Object.fromEntries(kid.records) : kid.records;
+
+    Object.values(records).forEach(rec => {
         if (!rec) return;
         if (rec.liturgy) total += 5;
         if (rec.sundaySchool) total += 5;
@@ -49,7 +58,8 @@ function calculateAttendanceStats(kid, totalWeeksCount) {
     let visitedCount = 0;
 
     if (kid && kid.records) {
-        Object.values(kid.records).forEach(rec => {
+        const records = (kid.records instanceof Map) ? Object.fromEntries(kid.records) : kid.records;
+        Object.values(records).forEach(rec => {
             if (!rec) return;
             if (rec.liturgy) liturgyPresent++;
             if (rec.sundaySchool) schoolPresent++;
@@ -132,11 +142,11 @@ function handleSearch(query) {
 }
 
 function openKidProfile(kidId) {
-    const allWeeks = getGlobalWeeks();
     const kid = globalKidsData.find(k => k._id === kidId);
     if (!kid) return;
 
-    const servantWeeks = allWeeks.filter(w => w.servant === kid.servant);
+    // تصفية الأسابيع الخاصة بخادم هذا الطفل من البيانات السحابية
+    const servantWeeks = globalWeeksData.filter(w => !w.servant || w.servant === kid.servant);
 
     const avatarContainer = document.getElementById('profBigAvatarWrap');
     if (avatarContainer) {
@@ -193,7 +203,8 @@ function openKidProfile(kidId) {
         tableBody.innerHTML = `<tr><td colspan="6" style="color: #94a3b8; padding: 12px;">لا توجد أسابيع مسجلة بعد</td></tr>`;
     } else {
         servantWeeks.forEach(w => {
-            const rec = (kid.records && kid.records[w.id]) ? kid.records[w.id] : {
+            const matchedRecord = getKidWeekRecord(kid, w);
+            const rec = matchedRecord || {
                 liturgy: false, sundaySchool: false, recitation: false, visitation: false
             };
 
@@ -204,11 +215,11 @@ function openKidProfile(kidId) {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><strong>${escapeHtml(w.date)}</strong></td>
-                <td>${rec.liturgy ? '<span class="check-green">✔</span>' : '<span class="cross-gray">✘</span>'}</td>
-                <td>${rec.sundaySchool ? '<span class="check-green">✔</span>' : '<span class="cross-gray">✘</span>'}</td>
-                <td>${rec.recitation ? '<span class="check-green">✔</span>' : '<span class="cross-gray">✘</span>'}</td>
-                <td>${rec.visitation ? '<span class="check-green">✔</span>' : '<span class="cross-gray">✘</span>'}</td>
+                <td><strong>${escapeHtml(w.date || w.name)}</strong></td>
+                <td>${rec.liturgy ? '<span class="check-green" style="color: #16a34a; font-weight: bold; font-size: 16px;">✔</span>' : '<span class="cross-gray" style="color: #94a3b8;">✘</span>'}</td>
+                <td>${rec.sundaySchool ? '<span class="check-green" style="color: #16a34a; font-weight: bold; font-size: 16px;">✔</span>' : '<span class="cross-gray" style="color: #94a3b8;">✘</span>'}</td>
+                <td>${rec.recitation ? '<span class="check-green" style="color: #16a34a; font-weight: bold; font-size: 16px;">✔</span>' : '<span class="cross-gray" style="color: #94a3b8;">✘</span>'}</td>
+                <td>${rec.visitation ? '<span class="check-green" style="color: #16a34a; font-weight: bold; font-size: 16px;">✔</span>' : '<span class="cross-gray" style="color: #94a3b8;">✘</span>'}</td>
                 <td style="font-weight: 900; color: #08111e;">+${pts}</td>
             `;
             tableBody.appendChild(tr);
@@ -246,26 +257,36 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// جلب البيانات من السيرفر السحابي
+// جلب الأسابيع والأطفال معاً من MongoDB السحابية
 async function loadKidsData() {
     try {
-        const res = await fetch('/api/children');
-        if (res.ok) {
-            globalKidsData = await res.json();
+        const [kidsRes, weeksRes] = await Promise.all([
+            fetch('/api/children'),
+            fetch('/api/weeks')
+        ]);
+
+        if (kidsRes.ok) {
+            globalKidsData = await kidsRes.json();
             const totalEl = document.getElementById('totalAllKids');
             if (totalEl) totalEl.textContent = globalKidsData.length;
             renderKidsList(globalKidsData);
+        }
+
+        if (weeksRes.ok) {
+            globalWeeksData = await weeksRes.json();
         }
     } catch (err) {
         console.error('فشل في جلب البيانات:', err);
     }
 }
 
-// الاستماع للتحديثات اللحظية
+// الاستماع للتحديثات اللحظية عبر Socket.io
 socket.on('childAdded', loadKidsData);
 socket.on('childDeleted', loadKidsData);
 socket.on('childUpdated', loadKidsData);
 socket.on('recordUpdated', loadKidsData);
 socket.on('noteAdded', loadKidsData);
+socket.on('weekAdded', loadKidsData);
+socket.on('weekDeleted', loadKidsData);
 
 document.addEventListener('DOMContentLoaded', loadKidsData);
