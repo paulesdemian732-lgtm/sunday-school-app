@@ -92,23 +92,32 @@ body {
     transform: scale(0.96);
 }
 
-/* شريط التحكم بالأسابيع المتجاوب مع شاشة الموبايل */
+/* شريط التحكم بالأسابيع المنظم بسطرين متناسقين تماماً */
 .week-control-bar {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 8px;
     background-color: #0f2038;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    padding: 8px 10px;
+    padding: 10px;
     width: 100%;
+}
+
+/* السطر العلوي: اختيار الأسبوع وزر الإضافة مدمجان في صف واحد */
+.week-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .week-selector-wrap {
     flex: 1;
-    min-width: 110px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -127,12 +136,11 @@ body {
     background: transparent;
     border: none;
     color: #ffffff;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 800;
     outline: none;
     cursor: pointer;
-    padding-right: 0;
-    max-width: 125px;
+    width: 100%;
     text-overflow: ellipsis;
 }
 
@@ -141,68 +149,81 @@ body {
     color: #ffffff;
 }
 
-.week-actions-group {
-    display: flex;
+.add-week-btn {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
     align-items: center;
     gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+}
+
+.add-week-btn:active {
+    transform: scale(0.96);
+}
+
+/* السطر السفلي: شبكة للأزرار الأربعة بالتساوي وبارتياح */
+.week-actions-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+}
+
+.week-actions-group button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 4px;
+    font-size: 10.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.report-action-btn {
+    background-color: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #6ee7b7;
 }
 
 .edit-action-btn {
     background-color: rgba(59, 130, 246, 0.15);
     border: 1px solid rgba(59, 130, 246, 0.4);
     color: #93c5fd;
-    border-radius: 10px;
-    padding: 6px 8px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-
-.edit-action-btn:active {
-    transform: scale(0.96);
 }
 
 .note-action-btn {
     background-color: rgba(245, 158, 11, 0.15);
     border: 1px solid rgba(245, 158, 11, 0.4);
     color: #f7d070;
-    border-radius: 10px;
-    padding: 6px 8px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    transition: all 0.2s ease;
 }
 
-.note-action-btn:active {
-    transform: scale(0.96);
+.delete-week-btn {
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
 }
 
-.add-week-btn {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+.delete-week-btn:hover {
+    background-color: #ef4444;
     color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    padding: 6px 9px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
 }
 
-.add-week-btn:active {
+.week-actions-group button:active {
     transform: scale(0.96);
 }
 
@@ -287,7 +308,6 @@ body {
     gap: 12px;
 }
 
-/* دائرة البروفايل والأيقونة بحجم 52px */
 .kid-pic-circle {
     width: 52px;
     height: 52px;
@@ -542,7 +562,6 @@ body {
     font-family: 'Cairo', sans-serif;
 }
 
-/* تنسيق خاص لحقل رفع الصورة والزر الخاص به */
 .field-input-box input[type="file"] {
     display: block;
     cursor: pointer;
@@ -609,7 +628,6 @@ body {
     transform: scale(0.98);
 }
 
-/* تنسيق زر الحذف الآمن في أسفل نافذة التعديل */
 .delete-kid-safe-btn {
     width: 100%;
     background-color: #fef2f2;
@@ -636,7 +654,6 @@ body {
     transform: scale(0.98);
 }
 
-/* تنسيقات نافذة ومحيط قص الصور (Cropper) الدائرية */
 .cropper-view-box,
 .cropper-face {
     border-radius: 50% !important;

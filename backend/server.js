@@ -72,10 +72,19 @@ app.post('/api/weeks', async (req, res) => {
   }
 });
 
+// مسار حذف الأسبوع وتنظيف درجاته من الأطفال
 app.delete('/api/weeks/:id', async (req, res) => {
   try {
-    await Week.findOneAndDelete({ id: req.params.id });
-    io.emit('weekDeleted', req.params.id);
+    const weekId = req.params.id;
+    await Week.findOneAndDelete({ id: weekId });
+    
+    // إزالة درجات هذا الأسبوع من جميع الأطفال
+    await Child.updateMany(
+      {},
+      { $unset: { [`records.${weekId}`]: "" } }
+    );
+
+    io.emit('weekDeleted', weekId);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'فشل في حذف الأسبوع' });

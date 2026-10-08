@@ -27,12 +27,22 @@
             </button>
         </header>
 
+        <!-- شريط التحكم بالأسابيع منظم بسطرين -->
         <section class="week-control-bar">
-            <div class="week-selector-wrap">
-                <label><i class="fa-solid fa-calendar-days"></i> الأسبوع الحالي:</label>
-                <select id="weekDropdown" onchange="handleWeekChange(this.value)">
-                </select>
+            <!-- السطر العلوي: اختيار الأسبوع + زر أسبوع جديد فوق الحذف مباشرة -->
+            <div class="week-top-row">
+                <div class="week-selector-wrap">
+                    <label><i class="fa-solid fa-calendar-days"></i> الأسبوع الحالي:</label>
+                    <select id="weekDropdown" onchange="handleWeekChange(this.value)">
+                    </select>
+                </div>
+                <button class="add-week-btn" onclick="showAddWeekModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>أسبوع جديد</span>
+                </button>
             </div>
+
+            <!-- السطر السفلي: الأزرار الأربعة مريحة ومتناسقة بالشبكة 4 أعمدة -->
             <div class="week-actions-group">
                 <button class="report-action-btn" onclick="generateClassPDFReport()" title="استخراج وطباعة تقرير PDF شامل">
                     <i class="fa-solid fa-file-pdf"></i>
@@ -46,9 +56,9 @@
                     <i class="fa-solid fa-pen-to-square"></i>
                     <span>ملاحظة</span>
                 </button>
-                <button class="add-week-btn" onclick="showAddWeekModal()">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>أسبوع جديد</span>
+                <button class="delete-week-btn" onclick="confirmDeleteCurrentWeek()" title="حذف الأسبوع الحالي المحدد">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>حذف أسبوع</span>
                 </button>
             </div>
         </section>

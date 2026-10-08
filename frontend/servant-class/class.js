@@ -66,6 +66,15 @@ socket.on('weekAdded', (newWeek) => {
     }
 });
 
+socket.on('weekDeleted', (deletedWeekId) => {
+    globalWeeks = globalWeeks.filter(w => w.id !== deletedWeekId);
+    if (activeWeekId === deletedWeekId) {
+        activeWeekId = null;
+    }
+    populateWeeksDropdown();
+    fetchKidsFromDB();
+});
+
 socket.on('recordUpdated', ({ id, weekKey, data }) => {
     const kid = globalKids.find(k => k._id === id);
     if (kid) {
@@ -176,6 +185,38 @@ async function handleCreateWeek(e) {
         }
     } catch (err) {
         console.error('فشل حفظ الأسبوع:', err);
+    }
+}
+
+// دالة حذف الأسبوع المختار حالياً
+async function confirmDeleteCurrentWeek() {
+    const servantWeeks = getServantWeeks();
+    if (servantWeeks.length === 0 || !activeWeekId) {
+        alert('لا يوجد أسبوع محدد لحذفه.');
+        return;
+    }
+
+    const currentWeekObj = servantWeeks.find(w => w.id === activeWeekId);
+    const weekName = currentWeekObj ? `${currentWeekObj.date} (${currentWeekObj.label})` : 'هذا الأسبوع';
+
+    const isConfirmed = confirm(`هل أنت متأكد من حذف ${weekName} نهائياً؟\nسيتم مسح درجات هذا الأسبوع لجميع الأطفال.`);
+    if (!isConfirmed) return;
+
+    try {
+        const res = await fetch(`/api/weeks/${activeWeekId}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert('تم حذف الأسبوع بنجاح.');
+            await fetchWeeksFromDB();
+            await fetchKidsFromDB();
+        } else {
+            alert('فشل في حذف الأسبوع من السيرفر.');
+        }
+    } catch (err) {
+        console.error('فشل حذف الأسبوع:', err);
+        alert('حدث خطأ أثناء الاتصال بالسيرفر لحذف الأسبوع.');
     }
 }
 
@@ -411,7 +452,7 @@ async function toggleKidPoint(kidId, pointType) {
     }
 
     kid.records[activeWeekId][pointType] = !kid.records[activeWeekId][pointType];
-    renderClassKids(); // تحديث فوري محلي
+    renderClassKids();
 
     try {
         await fetch(`/api/children/${kidId}/record`, {
