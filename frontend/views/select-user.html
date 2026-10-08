@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>اختار اسمك للمتابعة - مدارس الأحد</title>
+    <title>مدارس الأحد</title>
+
+    <!-- الأيقونة والمانيفست -->
+    <link rel="manifest" href="/public/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
+    <link rel="apple-touch-icon" href="/public/icon.svg">
+
+    <!-- التنسيقات -->
     <link rel="stylesheet" href="/public/css/global.css">
     <link rel="stylesheet" href="/public/css/select-user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -11,6 +18,13 @@
 <body>
 
     <div class="mobile-wrapper select-wrapper">
+        <div class="bg-decorations">
+            <i class="fa-solid fa-star doodle d-1"></i>
+            <i class="fa-solid fa-dove doodle d-2"></i>
+            <i class="fa-solid fa-cross doodle d-3"></i>
+            <i class="fa-solid fa-heart doodle d-4"></i>
+        </div>
+
         <header class="select-header">
             <div class="mini-logo-container">
                 <svg viewBox="0 0 120 100" class="church-logo-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,49 +35,41 @@
                     <path d="M35 50 V68 M29 56 H41" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
                     <path d="M60 14 V58" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
                     <path d="M46 29 H74" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M84 19 L87 9 L90 19 L100 22 L90 25 L87 35 L84 25 L74 22 Z" fill="#FFFFFF"/>
                 </svg>
             </div>
-            <h1 class="choose-title">اختار اسمك للمتابعة</h1>
+            <h2 class="choose-title">اختار اسمك للمتابعة</h2>
         </header>
 
         <main class="cards-group">
             <button class="user-row-card" onclick="handleUserSelection('مارلين نزيه')">
                 <div class="avatar-circle">
-                    <svg viewBox="0 0 40 40" class="original-avatar-svg">
-                        <circle cx="20" cy="14" r="7" fill="#FFFFFF"/>
-                        <path d="M8 34 C8 26 13 23 20 23 C27 23 32 26 32 34 Z" fill="#FFFFFF"/>
-                    </svg>
+                    <i class="fa-solid fa-user" style="color: #ffffff; font-size: 18px;"></i>
                 </div>
                 <span class="servant-label">مارلين نزيه</span>
-                <span class="arrow-circle">
+                <div class="arrow-circle">
                     <i class="fa-solid fa-chevron-left"></i>
-                </span>
+                </div>
             </button>
 
             <button class="user-row-card" onclick="handleUserSelection('مريم باشا')">
                 <div class="avatar-circle">
-                    <svg viewBox="0 0 40 40" class="original-avatar-svg">
-                        <circle cx="20" cy="14" r="7" fill="#FFFFFF"/>
-                        <path d="M8 34 C8 26 13 23 20 23 C27 23 32 26 32 34 Z" fill="#FFFFFF"/>
-                    </svg>
+                    <i class="fa-solid fa-user" style="color: #ffffff; font-size: 18px;"></i>
                 </div>
                 <span class="servant-label">مريم باشا</span>
-                <span class="arrow-circle">
+                <div class="arrow-circle">
                     <i class="fa-solid fa-chevron-left"></i>
-                </span>
+                </div>
             </button>
 
             <button class="user-row-card" onclick="handleUserSelection('بولس دميان')">
                 <div class="avatar-circle">
-                    <svg viewBox="0 0 40 40" class="original-avatar-svg">
-                        <circle cx="20" cy="14" r="7" fill="#FFFFFF"/>
-                        <path d="M8 34 C8 26 13 23 20 23 C27 23 32 26 32 34 Z" fill="#FFFFFF"/>
-                    </svg>
+                    <i class="fa-solid fa-user" style="color: #ffffff; font-size: 18px;"></i>
                 </div>
                 <span class="servant-label">بولس دميان</span>
-                <span class="arrow-circle">
+                <div class="arrow-circle">
                     <i class="fa-solid fa-chevron-left"></i>
-                </span>
+                </div>
             </button>
         </main>
 
@@ -71,57 +77,58 @@
             <span>لوحات المتابعة العامة</span>
         </div>
 
-        <footer class="bottom-board-group">
-            <button class="board-card" onclick="openHonorBoard()">
-                <div class="board-icon star-gold">
-                    <i class="fa-solid fa-star"></i>
+        <section class="bottom-board-group">
+            <!-- كارت أبطال سنة أولى ابتدائي بالاسم الجديد -->
+            <div class="board-card" onclick="openHonorBoard()">
+                <div class="board-icon">
+                    <i class="fa-solid fa-star star-gold"></i>
                 </div>
                 <div class="board-info">
-                    <h4>لوحة الشرف</h4>
+                    <h4>أبطال سنة أولى ابتدائي</h4>
                     <p>ترتيب الأطفال الأكثر تميزاً والتزاماً</p>
                 </div>
-                <span class="board-arrow">
+                <div class="board-arrow">
                     <i class="fa-solid fa-chevron-left"></i>
-                </span>
-            </button>
+                </div>
+            </div>
 
-            <button class="board-card" onclick="openAllKidsStats()">
-                <div class="board-icon pie-blue">
-                    <i class="fa-solid fa-chart-pie"></i>
+            <div class="board-card" onclick="openAllKidsStats()">
+                <div class="board-icon">
+                    <i class="fa-solid fa-chart-pie pie-blue"></i>
                 </div>
                 <div class="board-info">
                     <h4>إحصائية جميع الأطفال</h4>
                     <p>سجل الحضور والبيانات العامة</p>
                 </div>
-                <span class="board-arrow">
+                <div class="board-arrow">
                     <i class="fa-solid fa-chevron-left"></i>
-                </span>
-            </button>
-        </footer>
-    </div>
-
-    <!-- نافذة منبثقة لحماية حساب الخادم (إنشاء أو إدخال كلمة المرور) -->
-    <div class="auth-modal-overlay" id="authModal" style="display: none;">
-        <div class="auth-modal-card">
-            <h3 id="modalTitle">تسجيل الدخول</h3>
-            <p id="modalDesc">يرجى إدخال كلمة المرور الخاصة بك للمتابعة</p>
-
-            <form id="authForm" onsubmit="handleAuthSubmit(event)">
-                <div class="modal-input-group">
-                    <input type="password" id="modalPasswordInput" placeholder="أدخل كلمة المرور" required autocomplete="off">
                 </div>
+            </div>
+        </section>
 
-                <div class="modal-input-group" id="confirmPasswordGroup" style="display: none;">
-                    <input type="password" id="modalConfirmPasswordInput" placeholder="تأكيد كلمة المرور" autocomplete="off">
-                </div>
+        <!-- نافذة التحقق من كلمة المرور -->
+        <div id="authModal" class="auth-modal-overlay" style="display: none;">
+            <div class="auth-modal-card">
+                <h3 id="modalTitle">تسجيل الدخول</h3>
+                <p id="modalDesc">أدخل كلمة المرور الخاصة بك</p>
+                
+                <form id="servantAuthForm" onsubmit="handleAuthSubmit(event)">
+                    <div class="modal-input-group">
+                        <input type="password" id="modalPasswordInput" required autocomplete="off">
+                    </div>
+                    
+                    <div class="modal-input-group" id="confirmPasswordGroup" style="display: none;">
+                        <input type="password" id="modalConfirmPasswordInput" autocomplete="off">
+                    </div>
 
-                <div class="modal-error-msg" id="modalError" style="display: none;"></div>
+                    <div id="modalError" class="modal-error-msg" style="display: none;"></div>
 
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeAuthModal()">إلغاء</button>
-                    <button type="submit" class="btn-confirm" id="modalSubmitBtn">تأكيد</button>
-                </div>
-            </form>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel" onclick="closeAuthModal()">إلغاء</button>
+                        <button type="submit" class="btn-confirm" id="modalSubmitBtn">دخول</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
