@@ -77,7 +77,7 @@ app.delete('/api/weeks/:id', async (req, res) => {
   try {
     const weekId = req.params.id;
     await Week.findOneAndDelete({ id: weekId });
-    
+
     // إزالة درجات هذا الأسبوع من جميع الأطفال
     await Child.updateMany(
       {},
@@ -131,7 +131,7 @@ app.put('/api/children/:id/record', async (req, res) => {
 
     child.records.set(weekKey, data);
     await child.save();
-    
+
     io.emit('recordUpdated', { id, weekKey, data });
     res.json(child);
   } catch (err) {
@@ -199,6 +199,12 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/views/admin.html'));
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// تشغيل محلي للتجربة، والتصدير لـ Vercel
+if (process.env.NODE_ENV !== 'production') {
+  const currentPort = PORT || 3000;
+  server.listen(currentPort, () => {
+    console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
+  });
+}
+
+module.exports = app;
