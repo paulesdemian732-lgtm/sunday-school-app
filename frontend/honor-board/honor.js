@@ -1,5 +1,4 @@
-const socket = io();
-
+const socket = (typeof io !== 'undefined') ? io() : { on: () => { }, emit: () => { } };
 let honorKidsList = [];
 
 function goToSelectUser() {
