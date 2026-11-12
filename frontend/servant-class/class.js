@@ -102,6 +102,16 @@ socket.on('noteAdded', ({ id, note }) => {
     if (kid) {
         if (!kid.notes) kid.notes = [];
         kid.notes.unshift(note);
+        renderClassKids();
+    }
+});
+
+// استقبال أمر مسح الملاحظة لحظياً بناءً على الترتيب
+socket.on('noteDeleted', ({ id, noteIndex }) => {
+    const kid = globalKids.find(k => k._id === id);
+    if (kid && kid.notes) {
+        kid.notes.splice(noteIndex, 1);
+        renderClassKids();
     }
 });
 
@@ -372,9 +382,14 @@ async function confirmDeleteCurrentKid() {
 }
 
 // ==========================================
-// الملاحظات
+// إضافة وحذف الملاحظات 
 // ==========================================
 function showAddNoteModal() {
+    if (!activeWeekId) {
+        alert('يرجى إضافة أو اختيار أسبوع أولاً قبل كتابة الملاحظات.');
+        return;
+    }
+
     const servantKids = globalKids.filter(k => (k.servant || currentServant) === currentServant);
     const select = document.getElementById('selectNoteKid');
     select.innerHTML = '';
@@ -408,11 +423,13 @@ async function handleCreateNote(e) {
     const currentWeek = weeks.find(w => w.id === activeWeekId);
     const weekDate = currentWeek ? currentWeek.date : new Date().toLocaleDateString('ar-EG');
 
+    // الملاحظة الجديدة بتتربط بالأسبوع الحالي
     const notePayload = {
         id: 'note_' + Date.now(),
         date: weekDate,
         text: noteText,
-        servant: currentServant
+        servant: currentServant,
+        weekId: activeWeekId
     };
 
     try {
@@ -429,6 +446,32 @@ async function handleCreateNote(e) {
         }
     } catch (err) {
         console.error('فشل إضافة الملاحظة:', err);
+    }
+}
+
+// دالة الحذف تم تحديثها لتمسح باستخدام الترتيب (Index)
+async function deleteKidNote(kidId, noteIndex) {
+    const isConfirmed = confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟');
+    if (!isConfirmed) return;
+
+    try {
+        const response = await fetch(`/api/children/${kidId}/notes/${noteIndex}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const kidIndex = globalKids.findIndex(k => k._id === kidId);
+            if (kidIndex !== -1) {
+                globalKids[kidIndex].notes = data.notes;
+                renderClassKids();
+            }
+        } else {
+            alert('حدث خطأ أثناء محاولة حذف الملاحظة.');
+        }
+    } catch (error) {
+        console.error('Error deleting note:', error);
+        alert('خطأ في الاتصال بالسيرفر.');
     }
 }
 
@@ -478,7 +521,7 @@ function calculateWeekPoints(weekRecord) {
 }
 
 // ==========================================
-// رسم واجهة الأطفال
+// رسم واجهة الأطفال (تحديث ذكي لعرض الملاحظات القديمة والجديدة)
 // ==========================================
 function renderClassKids() {
     const servantKids = globalKids.filter(k => (k.servant || currentServant) === currentServant);
@@ -549,6 +592,44 @@ function renderClassKids() {
             </div>
         `;
 
+        // ترتيب وعرض الملاحظات (الجديدة للأسبوع الحالي + القديمة)
+        let notesHtml = '';
+        let visibleNotesCount = 0;
+        let notesContent = '';
+
+        if (kid.notes && kid.notes.length > 0) {
+            kid.notes.forEach((note, index) => {
+                // هنعرض الملاحظة لو هي تبع الأسبوع الحالي، أو لو هي ملاحظة قديمة (ملهاش weekId)
+                if (note.weekId === activeWeekId || !note.weekId) {
+                    visibleNotesCount++;
+                    const noteText = typeof note === 'object' ? (note.note || note.text || JSON.stringify(note)) : note;
+
+                    notesContent += `
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 12.5px; font-weight: 700; color: #08111e; flex: 1; line-height: 1.4;">
+                                ${!note.weekId ? '<span style="color:#ef4444; font-size:10px;">[قديمة]</span> ' : ''}${noteText}
+                            </span>
+                            <button type="button" onclick="deleteKidNote('${kid._id}', ${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'" onmouseout="this.style.backgroundColor='transparent'" title="حذف الملاحظة">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+
+            if (visibleNotesCount > 0) {
+                notesHtml = `
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                    <h4 style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 8px;">
+                        <i class="fa-solid fa-clipboard-list" style="margin-left: 4px;"></i>سجل الملاحظات:
+                    </h4>
+                    <div style="display: flex; flex-direction: column;">
+                        ${notesContent}
+                    </div>
+                </div>`;
+            }
+        }
+
         const card = document.createElement('div');
         card.className = 'kid-interactive-card';
         card.innerHTML = `
@@ -602,6 +683,8 @@ function renderClassKids() {
                     <span class="pill-points-tag">تم</span>
                 </button>
             </div>
+            
+            ${notesHtml}
         `;
         container.appendChild(card);
     });

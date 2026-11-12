@@ -175,6 +175,30 @@ app.post('/api/children/:id/notes', async (req, res) => {
   }
 });
 
+// مسار حذف الملاحظة باستخدام الـ ID الخاص بها لضمان مسح الملاحظة الصحيحة
+app.delete('/api/children/:id/notes/:noteId', async (req, res) => {
+  try {
+    const { id, noteId } = req.params;
+    const child = await Child.findById(id);
+
+    if (!child) return res.status(404).json({ error: 'الطفل غير موجود' });
+
+    const initialLength = child.notes.length;
+    // فلترة الملاحظات لحذف الملاحظة اللي ليها نفس الـ ID
+    child.notes = child.notes.filter(note => note.id !== noteId);
+
+    if (child.notes.length < initialLength) {
+      await child.save(); // حفظ التعديل في الداتابيز
+      try { io.emit('noteDeleted', { id, noteId }); } catch (e) { }
+      res.json({ success: true, notes: child.notes });
+    } else {
+      res.status(400).json({ error: 'الملاحظة غير موجودة' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'فشل في حذف الملاحظة' });
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('👤 مستخدم متصل لحظياً:', socket.id);
 });
@@ -215,7 +239,7 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
 connectToDatabase();
 
 if (process.env.NODE_ENV !== 'production') {
-  const currentPort = PORT || 3000;
+  const currentPort = PORT || 4000;
   server.listen(currentPort, () => {
     console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
   });
