@@ -13,11 +13,9 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
-// Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// الاتصال بقاعدة البيانات السحابية (MongoDB Atlas) مع دعم Vercel Serverless
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://paulesdemian732_db_user:nqne7WeuJPCfvVc1@cluster0.aupn4zp.mongodb.net/sundaySchoolDB?retryWrites=true&w=majority&appName=Cluster0';
 
 let cachedPromise = null;
@@ -40,7 +38,6 @@ async function connectToDatabase() {
   return cachedPromise;
 }
 
-// ضمان الاتصال بقاعدة البيانات قبل تنفيذ أي طلب API
 app.use('/api', async (req, res, next) => {
   try {
     await connectToDatabase();
@@ -50,7 +47,6 @@ app.use('/api', async (req, res, next) => {
   }
 });
 
-// نموذج بيانات الأطفال في القاعدة
 const ChildSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, default: '' },
@@ -63,7 +59,6 @@ const ChildSchema = new mongoose.Schema({
 
 const Child = mongoose.models.Child || mongoose.model('Child', ChildSchema);
 
-// نموذج بيانات الأسابيع في القاعدة لمزامنتها عبر كل الأجهزة
 const WeekSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   date: { type: String, required: true },
@@ -74,10 +69,8 @@ const WeekSchema = new mongoose.Schema({
 
 const Week = mongoose.models.Week || mongoose.model('Week', WeekSchema);
 
-// مسارات المصادقة
 app.use('/api', authRoutes);
 
-// مسارات الأسابيع السحابية
 app.get('/api/weeks', async (req, res) => {
   try {
     const weeks = await Week.find().sort({ createdAt: -1 });
@@ -98,18 +91,11 @@ app.post('/api/weeks', async (req, res) => {
   }
 });
 
-// مسار حذف الأسبوع وتنظيف درجاته من الأطفال
 app.delete('/api/weeks/:id', async (req, res) => {
   try {
     const weekId = req.params.id;
     await Week.findOneAndDelete({ id: weekId });
-
-    // إزالة درجات هذا الأسبوع من جميع الأطفال
-    await Child.updateMany(
-      {},
-      { $unset: { [`records.${weekId}`]: "" } }
-    );
-
+    await Child.updateMany({}, { $unset: { [`records.${weekId}`]: "" } });
     try { io.emit('weekDeleted', weekId); } catch (e) { }
     res.json({ success: true });
   } catch (err) {
@@ -117,7 +103,6 @@ app.delete('/api/weeks/:id', async (req, res) => {
   }
 });
 
-// مسارات بيانات الأطفال
 app.get('/api/children', async (req, res) => {
   try {
     const children = await Child.find();
@@ -193,46 +178,5 @@ app.post('/api/children/:id/notes', async (req, res) => {
 io.on('connection', (socket) => {
   console.log('👤 مستخدم متصل لحظياً:', socket.id);
 });
-
-// ملفات الواجهة ومسارات الصفحات
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/login.html'));
-});
-
-app.get(['/login', '/login.html', '/views/login.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/login.html'));
-});
-
-app.get(['/select-user', '/select-user.html', '/views/select-user.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/select-user.html'));
-});
-
-app.get(['/class', '/class.html', '/servant-class/class.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/servant-class/class.html'));
-});
-
-app.get(['/stats', '/stats.html', '/all-kids-stats/stats', '/all-kids-stats/stats.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/all-kids-stats/stats.html'));
-});
-
-app.get(['/honor', '/honor.html', '/honor-board/honor', '/honor-board/honor.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/honor-board/honor.html'));
-});
-
-app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/admin.html'));
-});
-
-// تشغيل محلي للتجربة، والتصدير لـ Vercel
-if (process.env.NODE_ENV !== 'production') {
-  const currentPort = PORT || 3000;
-  connectToDatabase().then(() => {
-    server.listen(currentPort, () => {
-      console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
-    });
-  });
-}
 
 module.exports = app;
