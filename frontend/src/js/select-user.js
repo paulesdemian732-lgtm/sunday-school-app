@@ -135,4 +135,4 @@ window.addEventListener('click', (e) => {
     if (e.target === modal) {
         closeAuthModal();
     }
-});s
+});

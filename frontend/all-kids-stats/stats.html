@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إحصائية جميع الأطفال - مدارس الأحد</title>
-    
+
     <link rel="icon" type="image/svg+xml" href="/public/icon.svg">
     <link rel="apple-touch-icon" href="/public/icon.svg">
     <link rel="manifest" href="/public/manifest.json">
@@ -12,13 +13,15 @@
     <link rel="stylesheet" href="/all-kids-stats/stats.css">
     <link rel="stylesheet" href="/reports/reports.css">
 </head>
+
 <body>
 
     <div class="mobile-frame-fixed">
         <!-- شريط علوي -->
         <header class="top-nav">
             <button class="icon-nav-btn" onclick="goToSelectUser()" title="رجوع">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.6"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
@@ -28,8 +31,10 @@
                 <h1 class="main-head-title">إحصائية جميع الأطفال</h1>
             </div>
             <!-- زر تقرير PDF لجميع الأطفال -->
-            <button class="header-pdf-btn" onclick="generateAllKidsPDFReport()" title="طباعة تقرير PDF لجميع أطفال المرحلة">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <button class="header-pdf-btn" onclick="generateAllKidsPDFReport()"
+                title="طباعة تقرير PDF لجميع أطفال المرحلة">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#dc2626" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -44,10 +49,10 @@
             <div class="total-kids-hero-card">
                 <div class="hero-icon-box">
                     <svg viewBox="0 0 40 40" width="28" height="28" fill="#f7d070">
-                        <circle cx="14" cy="12" r="5"/>
-                        <path d="M6 30 C6 23 10 20 14 20 C18 20 22 23 22 30 Z"/>
-                        <circle cx="26" cy="14" r="4.2"/>
-                        <path d="M20 30 C20 24 23 22 26 22 C29 22 33 24 33 30 Z"/>
+                        <circle cx="14" cy="12" r="5" />
+                        <path d="M6 30 C6 23 10 20 14 20 C18 20 22 23 22 30 Z" />
+                        <circle cx="26" cy="14" r="4.2" />
+                        <path d="M20 30 C20 24 23 22 26 22 C29 22 33 24 33 30 Z" />
                     </svg>
                 </div>
                 <div class="hero-info">
@@ -59,7 +64,8 @@
 
         <!-- حقل البحث السريع عن طفل -->
         <div class="search-box">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a4c2e6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a4c2e6" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -92,8 +98,8 @@
                     <div id="profBigAvatarWrap">
                         <div class="profile-big-avatar">
                             <svg viewBox="0 0 40 40" width="30" height="30" fill="#ffffff">
-                                <circle cx="20" cy="13" r="6"/>
-                                <path d="M9 33 C9 24 14 21 20 21 C26 21 31 24 31 33 Z"/>
+                                <circle cx="20" cy="13" r="6" />
+                                <path d="M9 33 C9 24 14 21 20 21 C26 21 31 24 31 33 Z" />
                             </svg>
                         </div>
                     </div>
@@ -143,7 +149,8 @@
                     <div class="attend-stat-box">
                         <div class="as-head"><span>📞 الافتقاد</span></div>
                         <div class="as-counters">
-                            <span class="tag-present" style="background:#e0f2fe; color:#0369a1;">تم: <strong id="countVisited">0</strong></span>
+                            <span class="tag-present" style="background:#e0f2fe; color:#0369a1;">تم: <strong
+                                    id="countVisited">0</strong></span>
                         </div>
                     </div>
                 </div>
@@ -175,9 +182,9 @@
         </div>
     </div>
 
-    <!-- استدعاء سكريبت الربط اللحظي والمكتبات -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- المكتبات والسكريبتات التشغيلية -->
     <script src="/reports/reports.js"></script>
     <script src="/all-kids-stats/stats.js"></script>
 </body>
+
 </html>

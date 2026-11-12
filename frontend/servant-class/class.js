@@ -9,8 +9,8 @@ if (servantNameEl) {
     servantNameEl.textContent = currentServant;
 }
 
-// اتصال Socket.io اللحظي
-const socket = io();
+// اتصال Socket.io اللحظي الآمن
+const socket = (typeof io !== 'undefined') ? io() : { on: () => { }, emit: () => { } };
 
 let globalKids = [];
 let globalWeeks = [];
@@ -615,13 +615,13 @@ function renderClassKids() {
 // ==========================================
 function setupPhotoInputForCrop(inputElement, targetType) {
     if (!inputElement) return;
-    inputElement.addEventListener('change', function(e) {
+    inputElement.addEventListener('change', function (e) {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
         currentTargetPhotoType = targetType;
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             const imageToCrop = document.getElementById('imageToCrop');
             imageToCrop.src = event.target.result;
 

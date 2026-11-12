@@ -17,12 +17,38 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// الاتصال بقاعدة البيانات السحابية (MongoDB Atlas)
-const MONGO_URI = 'mongodb+srv://paulesdemian732_db_user:nqne7WeuJPCfvVc1@cluster0.aupn4zp.mongodb.net/sundaySchoolDB?retryWrites=true&w=majority&appName=Cluster0';
+// الاتصال بقاعدة البيانات السحابية (MongoDB Atlas) مع دعم Vercel Serverless
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://paulesdemian732_db_user:nqne7WeuJPCfvVc1@cluster0.aupn4zp.mongodb.net/sundaySchoolDB?retryWrites=true&w=majority&appName=Cluster0';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ متصل بقاعدة بيانات MongoDB Atlas السحابية بنجاح'))
-  .catch(err => console.error('❌ خطأ في الاتصال بـ MongoDB:', err));
+let cachedPromise = null;
+async function connectToDatabase() {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+  if (!cachedPromise) {
+    cachedPromise = mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 10000
+    }).then((m) => {
+      console.log('✅ متصل بقاعدة بيانات MongoDB Atlas السحابية بنجاح');
+      return m;
+    }).catch((err) => {
+      cachedPromise = null;
+      console.error('❌ خطأ في الاتصال بـ MongoDB:', err);
+      throw err;
+    });
+  }
+  return cachedPromise;
+}
+
+// ضمان الاتصال بقاعدة البيانات قبل تنفيذ أي طلب API
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'فشل الاتصال بقاعدة البيانات السحابية' });
+  }
+});
 
 // نموذج بيانات الأطفال في القاعدة
 const ChildSchema = new mongoose.Schema({
@@ -35,7 +61,7 @@ const ChildSchema = new mongoose.Schema({
   notes: { type: Array, default: [] }
 }, { timestamps: true });
 
-const Child = mongoose.model('Child', ChildSchema);
+const Child = mongoose.models.Child || mongoose.model('Child', ChildSchema);
 
 // نموذج بيانات الأسابيع في القاعدة لمزامنتها عبر كل الأجهزة
 const WeekSchema = new mongoose.Schema({
@@ -46,7 +72,7 @@ const WeekSchema = new mongoose.Schema({
   createdAt: { type: Number, default: () => Date.now() }
 }, { timestamps: true });
 
-const Week = mongoose.model('Week', WeekSchema);
+const Week = mongoose.models.Week || mongoose.model('Week', WeekSchema);
 
 // مسارات المصادقة
 app.use('/api', authRoutes);
@@ -65,7 +91,7 @@ app.post('/api/weeks', async (req, res) => {
   try {
     const week = new Week(req.body);
     await week.save();
-    io.emit('weekAdded', week);
+    try { io.emit('weekAdded', week); } catch (e) { }
     res.json(week);
   } catch (err) {
     res.status(500).json({ error: 'فشل في حفظ الأسبوع' });
@@ -84,7 +110,7 @@ app.delete('/api/weeks/:id', async (req, res) => {
       { $unset: { [`records.${weekId}`]: "" } }
     );
 
-    io.emit('weekDeleted', weekId);
+    try { io.emit('weekDeleted', weekId); } catch (e) { }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'فشل في حذف الأسبوع' });
@@ -105,7 +131,7 @@ app.post('/api/children', async (req, res) => {
   try {
     const child = new Child(req.body);
     await child.save();
-    io.emit('childAdded', child);
+    try { io.emit('childAdded', child); } catch (e) { }
     res.json(child);
   } catch (err) {
     res.status(500).json({ error: 'فشل في إضافة الطفل' });
@@ -115,7 +141,7 @@ app.post('/api/children', async (req, res) => {
 app.put('/api/children/:id', async (req, res) => {
   try {
     const updated = await Child.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    io.emit('childUpdated', updated);
+    try { io.emit('childUpdated', updated); } catch (e) { }
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: 'فشل في تحديث بيانات الطفل' });
@@ -132,7 +158,7 @@ app.put('/api/children/:id/record', async (req, res) => {
     child.records.set(weekKey, data);
     await child.save();
 
-    io.emit('recordUpdated', { id, weekKey, data });
+    try { io.emit('recordUpdated', { id, weekKey, data }); } catch (e) { }
     res.json(child);
   } catch (err) {
     res.status(500).json({ error: 'فشل في تحديث النقاط' });
@@ -142,7 +168,7 @@ app.put('/api/children/:id/record', async (req, res) => {
 app.delete('/api/children/:id', async (req, res) => {
   try {
     await Child.findByIdAndDelete(req.params.id);
-    io.emit('childDeleted', req.params.id);
+    try { io.emit('childDeleted', req.params.id); } catch (e) { }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'فشل في حذف الطفل' });
@@ -157,7 +183,7 @@ app.post('/api/children/:id/notes', async (req, res) => {
     if (!child.notes) child.notes = [];
     child.notes.unshift(req.body);
     await child.save();
-    io.emit('noteAdded', { id: req.params.id, note: req.body });
+    try { io.emit('noteAdded', { id: req.params.id, note: req.body }); } catch (e) { }
     res.json(child);
   } catch (err) {
     res.status(500).json({ error: 'فشل في إضافة الملاحظة' });
@@ -202,8 +228,10 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
 // تشغيل محلي للتجربة، والتصدير لـ Vercel
 if (process.env.NODE_ENV !== 'production') {
   const currentPort = PORT || 3000;
-  server.listen(currentPort, () => {
-    console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
+  connectToDatabase().then(() => {
+    server.listen(currentPort, () => {
+      console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
+    });
   });
 }
 

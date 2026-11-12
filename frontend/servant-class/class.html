@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مدارس الأحد</title>
-    
+
     <link rel="stylesheet" href="/servant-class/class.css">
     <link rel="stylesheet" href="/reports/reports.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 </head>
+
 <body>
 
     <div class="mobile-frame-fixed">
@@ -44,7 +46,8 @@
 
             <!-- السطر السفلي: الأزرار الأربعة مريحة ومتناسقة بالشبكة 4 أعمدة -->
             <div class="week-actions-group">
-                <button class="report-action-btn" onclick="generateClassPDFReport()" title="استخراج وطباعة تقرير PDF شامل">
+                <button class="report-action-btn" onclick="generateClassPDFReport()"
+                    title="استخراج وطباعة تقرير PDF شامل">
                     <i class="fa-solid fa-file-pdf"></i>
                     <span>تقرير PDF</span>
                 </button>
@@ -105,7 +108,8 @@
                         <label>اسم الطفل ثلاثي</label>
                         <div class="field-input-box">
                             <i class="fa-solid fa-signature"></i>
-                            <input type="text" id="inputKidName" placeholder="أدخل اسم الطفل..." required autocomplete="off">
+                            <input type="text" id="inputKidName" placeholder="أدخل اسم الطفل..." required
+                                autocomplete="off">
                         </div>
                     </div>
 
@@ -219,21 +223,24 @@
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                
+
                 <p style="font-size: 11.5px; color: #64748b; margin-bottom: 12px; font-weight: 700;">
                     اسحب الصورة أو كبّرها/صغّرها لتحديد الوجه داخل الدائرة:
                 </p>
-                
-                <div style="width: 100%; height: 260px; background-color: #000; border-radius: 16px; overflow: hidden; position: relative;">
+
+                <div
+                    style="width: 100%; height: 260px; background-color: #000; border-radius: 16px; overflow: hidden; position: relative;">
                     <img id="imageToCrop" src="" style="max-width: 100%; display: block;" alt="معاينة الصورة">
                 </div>
 
                 <div style="margin-top: 14px; display: flex; gap: 8px;">
-                    <button type="button" class="save-modal-btn" onclick="applyCrop()" style="margin-top: 0; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); flex: 2;">
+                    <button type="button" class="save-modal-btn" onclick="applyCrop()"
+                        style="margin-top: 0; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); flex: 2;">
                         <i class="fa-solid fa-crop-simple"></i>
                         <span>تأكيد واعتماد الصورة</span>
                     </button>
-                    <button type="button" onclick="cancelCrop()" style="flex: 1; background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 18px; font-weight: 800; cursor: pointer; color: #475569; font-size: 13px;">
+                    <button type="button" onclick="cancelCrop()"
+                        style="flex: 1; background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 18px; font-weight: 800; cursor: pointer; color: #475569; font-size: 13px;">
                         إلغاء
                     </button>
                 </div>
@@ -263,7 +270,9 @@
                     <div class="field-row">
                         <label>الملاحظة (تشجيع، سلوك، التزام...)</label>
                         <div class="field-input-box text-area-wrap">
-                            <textarea id="inputNoteText" rows="3" placeholder="مثال: بدأ يحفظ الآيات بانتظام، أو شارك بإيجابية في الدرس..." required></textarea>
+                            <textarea id="inputNoteText" rows="3"
+                                placeholder="مثال: بدأ يحفظ الآيات بانتظام، أو شارك بإيجابية في الدرس..."
+                                required></textarea>
                         </div>
                     </div>
 
@@ -311,10 +320,10 @@
         </div>
     </div>
 
-    <!-- استدعاء سكريبت الربط اللحظي والمكتبات -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- المكتبات والسكريبتات التشغيلية بدون ملفات معطلة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script src="/reports/reports.js"></script>
     <script src="/servant-class/class.js"></script>
 </body>
+
 </html>

@@ -8,7 +8,7 @@ const ServantSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 });
-const Servant = mongoose.model('Servant', ServantSchema);
+const Servant = mongoose.models.Servant || mongoose.model('Servant', ServantSchema);
 
 // تسجيل الدخول العام للموقع
 router.post('/login', (req, res) => {

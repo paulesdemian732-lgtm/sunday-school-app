@@ -1,5 +1,5 @@
-// اتصال Socket.io اللحظي
-const socket = io();
+// اتصال Socket.io اللحظي الآمن
+const socket = (typeof io !== 'undefined') ? io() : { on: () => { }, emit: () => { } };
 
 let globalKidsData = [];
 let globalWeeksData = [];
@@ -26,7 +26,7 @@ function escapeHtml(str) {
 function getKidWeekRecord(kid, week) {
     if (!kid || !kid.records) return null;
     const records = kid.records;
-    
+
     // فحص بالـ id أولاً (مثل week_1728...)
     if (week.id && records[week.id]) return records[week.id];
     // فحص بالتاريخ (مثل 2026-10-02)
@@ -114,7 +114,7 @@ function renderKidsList(filteredKids) {
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                </div>`;
-        
+
         card.innerHTML = `
             <div class="ksr-info">
                 ${avatarHtml}
@@ -165,7 +165,7 @@ function openKidProfile(kidId) {
 
     document.getElementById('profKidName').textContent = kid.name || 'بدون اسم';
     document.getElementById('profKidServant').textContent = `الخادم: ${kid.servant || 'غير محدد'}`;
-    
+
     const phoneEl = document.getElementById('profKidPhone');
     if (kid.phone) {
         phoneEl.href = `tel:${kid.phone}`;
