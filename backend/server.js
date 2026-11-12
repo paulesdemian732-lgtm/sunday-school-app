@@ -167,6 +167,7 @@ app.post('/api/children/:id/notes', async (req, res) => {
 
     if (!child.notes) child.notes = [];
     child.notes.unshift(req.body);
+    child.markModified('notes');
     await child.save();
     try { io.emit('noteAdded', { id: req.params.id, note: req.body }); } catch (e) { }
     res.json(child);
@@ -175,26 +176,26 @@ app.post('/api/children/:id/notes', async (req, res) => {
   }
 });
 
-// مسار حذف الملاحظة باستخدام الـ ID الخاص بها لضمان مسح الملاحظة الصحيحة
-app.delete('/api/children/:id/notes/:noteId', async (req, res) => {
+// مسار حذف الملاحظة بالترتيب مع إجبار MongoDB على الحفظ
+app.delete('/api/children/:id/notes/:noteIndex', async (req, res) => {
   try {
-    const { id, noteId } = req.params;
+    const { id, noteIndex } = req.params;
     const child = await Child.findById(id);
-
     if (!child) return res.status(404).json({ error: 'الطفل غير موجود' });
 
-    const initialLength = child.notes.length;
-    // فلترة الملاحظات لحذف الملاحظة اللي ليها نفس الـ ID
-    child.notes = child.notes.filter(note => note.id !== noteId);
-
-    if (child.notes.length < initialLength) {
-      await child.save(); // حفظ التعديل في الداتابيز
-      try { io.emit('noteDeleted', { id, noteId }); } catch (e) { }
-      res.json({ success: true, notes: child.notes });
-    } else {
-      res.status(400).json({ error: 'الملاحظة غير موجودة' });
+    const idx = parseInt(noteIndex, 10);
+    if (isNaN(idx) || idx < 0 || idx >= (child.notes ? child.notes.length : 0)) {
+      return res.status(400).json({ error: 'الملاحظة غير موجودة' });
     }
+
+    child.notes.splice(idx, 1);
+    child.markModified('notes');
+    await child.save();
+
+    try { io.emit('noteDeleted', { id, noteIndex: idx }); } catch (e) { }
+    res.json({ success: true, notes: child.notes });
   } catch (err) {
+    console.error('Error deleting note:', err);
     res.status(500).json({ error: 'فشل في حذف الملاحظة' });
   }
 });
@@ -203,7 +204,7 @@ io.on('connection', (socket) => {
   console.log('👤 مستخدم متصل لحظياً:', socket.id);
 });
 
-// مسارات ملفات واجهة المستخدم (Frontend) متوافقة تماماً مع بنية المجلدات
+// مسارات ملفات واجهة المستخدم (Frontend) كاملة زي ما كانت
 const frontendPath = path.join(__dirname, '../frontend');
 app.use(express.static(frontendPath));
 
@@ -235,7 +236,6 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
   res.sendFile(path.join(frontendPath, 'views/admin.html'));
 });
 
-// الاتصال بقاعدة البيانات ودعم التشغيل المحلي والإنتاج
 connectToDatabase();
 
 if (process.env.NODE_ENV !== 'production') {

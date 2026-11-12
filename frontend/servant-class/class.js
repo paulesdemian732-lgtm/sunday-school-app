@@ -106,7 +106,6 @@ socket.on('noteAdded', ({ id, note }) => {
     }
 });
 
-// استقبال أمر مسح الملاحظة لحظياً بناءً على الترتيب
 socket.on('noteDeleted', ({ id, noteIndex }) => {
     const kid = globalKids.find(k => k._id === id);
     if (kid && kid.notes) {
@@ -382,7 +381,7 @@ async function confirmDeleteCurrentKid() {
 }
 
 // ==========================================
-// إضافة وحذف الملاحظات 
+// الملاحظات (إضافة وحذف)
 // ==========================================
 function showAddNoteModal() {
     if (!activeWeekId) {
@@ -423,7 +422,6 @@ async function handleCreateNote(e) {
     const currentWeek = weeks.find(w => w.id === activeWeekId);
     const weekDate = currentWeek ? currentWeek.date : new Date().toLocaleDateString('ar-EG');
 
-    // الملاحظة الجديدة بتتربط بالأسبوع الحالي
     const notePayload = {
         id: 'note_' + Date.now(),
         date: weekDate,
@@ -449,14 +447,13 @@ async function handleCreateNote(e) {
     }
 }
 
-// دالة الحذف تم تحديثها لتمسح باستخدام الترتيب (Index)
 async function deleteKidNote(kidId, noteIndex) {
     const isConfirmed = confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟');
     if (!isConfirmed) return;
 
     try {
         const response = await fetch(`/api/children/${kidId}/notes/${noteIndex}`, {
-            method: 'DELETE',
+            method: 'DELETE'
         });
 
         if (response.ok) {
@@ -521,7 +518,7 @@ function calculateWeekPoints(weekRecord) {
 }
 
 // ==========================================
-// رسم واجهة الأطفال (تحديث ذكي لعرض الملاحظات القديمة والجديدة)
+// رسم واجهة الأطفال
 // ==========================================
 function renderClassKids() {
     const servantKids = globalKids.filter(k => (k.servant || currentServant) === currentServant);
@@ -557,6 +554,7 @@ function renderClassKids() {
 
     let weekTotalPoints = 0;
     let weekAttendedCount = 0;
+    const latestWeekId = servantWeeks.length > 0 ? servantWeeks[0].id : null;
 
     servantKids.forEach(kid => {
         const record = (kid.records && kid.records[activeWeekId]) ? kid.records[activeWeekId] : {
@@ -592,23 +590,26 @@ function renderClassKids() {
             </div>
         `;
 
-        // ترتيب وعرض الملاحظات (الجديدة للأسبوع الحالي + القديمة)
+        // رسم سجل الملاحظات (ملاحظات الأسبوع الحالي + الملاحظات القديمة في أحدث أسبوع فقط)
         let notesHtml = '';
         let visibleNotesCount = 0;
         let notesContent = '';
 
         if (kid.notes && kid.notes.length > 0) {
             kid.notes.forEach((note, index) => {
-                // هنعرض الملاحظة لو هي تبع الأسبوع الحالي، أو لو هي ملاحظة قديمة (ملهاش weekId)
-                if (note.weekId === activeWeekId || !note.weekId) {
+                const isCurrentWeekNote = note.weekId === activeWeekId;
+                const isOldNoteInLatestWeek = !note.weekId && activeWeekId === latestWeekId;
+
+                if (isCurrentWeekNote || isOldNoteInLatestWeek) {
                     visibleNotesCount++;
                     const noteText = typeof note === 'object' ? (note.note || note.text || JSON.stringify(note)) : note;
+                    const oldNoteBadge = isOldNoteInLatestWeek
+                        ? '<span style="color:#ef4444; font-size:10.5px; font-weight:800; background:#fee2e2; padding:2px 6px; border-radius:4px; margin-left:6px;">[ملاحظة قديمة]</span>'
+                        : '';
 
                     notesContent += `
                         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 12.5px; font-weight: 700; color: #08111e; flex: 1; line-height: 1.4;">
-                                ${!note.weekId ? '<span style="color:#ef4444; font-size:10px;">[قديمة]</span> ' : ''}${noteText}
-                            </span>
+                            <span style="font-size: 12.5px; font-weight: 700; color: #08111e; flex: 1; line-height: 1.4;">${oldNoteBadge}${noteText}</span>
                             <button type="button" onclick="deleteKidNote('${kid._id}', ${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'" onmouseout="this.style.backgroundColor='transparent'" title="حذف الملاحظة">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
@@ -683,7 +684,7 @@ function renderClassKids() {
                     <span class="pill-points-tag">تم</span>
                 </button>
             </div>
-            
+
             ${notesHtml}
         `;
         container.appendChild(card);
