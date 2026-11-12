@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
   console.log('👤 مستخدم متصل لحظياً:', socket.id);
 });
 
-// ملفات الواجهة ومسارات الصفحات (تم إصلاح المسار ليقرأه Vercel)
+// ملفات الواجهة ومسارات الصفحات
 const frontendPath = path.join(process.cwd(), 'frontend');
 app.use(express.static(frontendPath));
 
@@ -211,12 +211,13 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
   res.sendFile(path.join(frontendPath, 'views/admin.html'));
 });
 
+// تفعيل الاتصال ودعم التشغيل المحلي والإنتاج
+connectToDatabase();
+
 if (process.env.NODE_ENV !== 'production') {
   const currentPort = PORT || 3000;
-  connectToDatabase().then(() => {
-    server.listen(currentPort, () => {
-      console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
-    });
+  server.listen(currentPort, () => {
+    console.log(`🚀 Server running locally at http://localhost:${currentPort}`);
   });
 }
 
