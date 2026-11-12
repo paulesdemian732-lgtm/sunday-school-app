@@ -3,57 +3,18 @@
     "builds": [
         {
             "src": "backend/server.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "frontend/**",
-            "use": "@vercel/static"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "frontend/**"
+                ]
+            }
         }
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
-            "dest": "backend/server.js"
-        },
-        {
-            "src": "/socket.io/(.*)",
-            "dest": "backend/server.js"
-        },
-        {
-            "src": "/public/(.*)",
-            "dest": "frontend/public/$1"
-        },
-        {
-            "src": "/src/(.*)",
-            "dest": "frontend/src/$1"
-        },
-        {
-            "src": "/views/(.*)",
-            "dest": "frontend/views/$1"
-        },
-        {
-            "src": "/servant-class/(.*)",
-            "dest": "frontend/servant-class/$1"
-        },
-        {
-            "src": "/reports/(.*)",
-            "dest": "frontend/reports/$1"
-        },
-        {
-            "src": "/all-kids-stats/(.*)",
-            "dest": "frontend/all-kids-stats/$1"
-        },
-        {
-            "src": "/honor-board/(.*)",
-            "dest": "frontend/honor-board/$1"
-        },
-        {
-            "src": "/",
-            "dest": "frontend/views/login.html"
-        },
-        {
             "src": "/(.*)",
-            "dest": "frontend/views/login.html"
+            "dest": "backend/server.js"
         }
     ]
 }
