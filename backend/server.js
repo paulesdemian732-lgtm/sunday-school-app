@@ -179,8 +179,8 @@ io.on('connection', (socket) => {
   console.log('👤 مستخدم متصل لحظياً:', socket.id);
 });
 
-// ملفات الواجهة ومسارات الصفحات
-const frontendPath = path.join(process.cwd(), 'frontend');
+// مسارات ملفات واجهة المستخدم (Frontend) متوافقة تماماً مع بنية المجلدات
+const frontendPath = path.join(__dirname, '../frontend');
 app.use(express.static(frontendPath));
 
 app.get('/', (req, res) => {
@@ -211,7 +211,7 @@ app.get(['/admin', '/admin.html', '/views/admin.html'], (req, res) => {
   res.sendFile(path.join(frontendPath, 'views/admin.html'));
 });
 
-// تفعيل الاتصال ودعم التشغيل المحلي والإنتاج
+// الاتصال بقاعدة البيانات ودعم التشغيل المحلي والإنتاج
 connectToDatabase();
 
 if (process.env.NODE_ENV !== 'production') {
